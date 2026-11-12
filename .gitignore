@@ -1,0 +1,15 @@
+.gradle/
+build/
+.idea/
+local.properties
+*.iml
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
+
+# local, personal or generated
+*.local.*
+*.preferences_pb
+/tools/out/

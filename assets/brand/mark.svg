@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The Camora mark without a background: a C that is also a lens ring, a lens, and a REC dot in the opening. -->
+  <defs>
+    <linearGradient id="ring" x1="0.15" y1="0.05" x2="0.85" y2="0.95">
+      <stop offset="0" stop-color="#F4EFFF"/>
+      <stop offset="0.45" stop-color="#B8A4FF"/>
+      <stop offset="1" stop-color="#FF8FB8"/>
+    </linearGradient>
+    <linearGradient id="ringShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="lens" cx="0.36" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#9C86FF"/>
+      <stop offset="0.45" stop-color="#4A3699"/>
+      <stop offset="1" stop-color="#140F28"/>
+    </radialGradient>
+    <radialGradient id="iris" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.55" stop-color="#05040A"/>
+      <stop offset="1" stop-color="#2A1F55"/>
+    </radialGradient>
+    <radialGradient id="rec" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#FF9EB0"/>
+      <stop offset="0.6" stop-color="#FF3D63"/>
+      <stop offset="1" stop-color="#D81B45"/>
+    </radialGradient>
+    <radialGradient id="recGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FF3D63" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FF3D63" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- C ring: an arc of radius 150 around the centre, open on the right between -38 and +38 degrees. -->
+  <path d="M374.2,163.7 A150,150 0 1,0 374.2,348.3" fill="none" stroke="url(#ring)" stroke-width="66" stroke-linecap="round"/>
+  <path d="M362.0,176.0 A132,132 0 0,0 124.0,256.0" fill="none" stroke="url(#ringShade)" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+  <!-- Lens: housing, glass, iris, reflections. -->
+  <circle cx="256" cy="256" r="80" fill="#120E22"/>
+  <circle cx="256" cy="256" r="80" fill="none" stroke="#C9BBFF" stroke-opacity="0.75" stroke-width="5"/>
+  <circle cx="256" cy="256" r="64" fill="url(#lens)"/>
+  <circle cx="256" cy="256" r="64" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
+  <circle cx="256" cy="256" r="32" fill="url(#iris)"/>
+  <ellipse cx="233" cy="228" rx="17" ry="10" fill="#FFFFFF" opacity="0.75" transform="rotate(-35 233 228)"/>
+  <circle cx="281" cy="282" r="5" fill="#FFFFFF" opacity="0.35"/>
+  <!-- REC dot in the opening of the C. -->
+  <circle cx="410" cy="256" r="52" fill="url(#recGlow)"/>
+  <circle cx="410" cy="256" r="28" fill="url(#rec)"/>
+  <ellipse cx="402" cy="246" rx="9" ry="6" fill="#FFFFFF" opacity="0.55" transform="rotate(-35 402 246)"/>
+</svg>

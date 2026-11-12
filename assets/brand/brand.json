@@ -1,0 +1,15 @@
+{
+  "name": "Camora",
+  "tagline_en": "Your cameras and capture card, recorded and on every screen.",
+  "tagline_he": "המצלמות וכרטיס הלכידה שלך, מוקלטים ועל כל מסך.",
+  "contact_email": "Solvaris2@gmail.com",
+  "policy_date": "2026-11-12",
+  "accent": "#B8A4FF",
+  "background": "#1B1B22",
+  "donate": [
+    { "name": "GitHub Sponsors", "url": "https://github.com/sponsors/DrummingBird1", "color": "EA4AAA", "logo": "githubsponsors", "logoColor": "white" },
+    { "name": "Patreon", "url": "https://www.patreon.com/c/Solvaris", "color": "F96854", "logo": "patreon", "logoColor": "white" },
+    { "name": "Ko-fi", "url": "https://ko-fi.com/solvaris1", "color": "FF5E5B", "logo": "kofi", "logoColor": "white" },
+    { "name": "Buy Me a Coffee", "url": "https://buymeacoffee.com/solvaris", "color": "FFDD00", "logo": "buymeacoffee", "logoColor": "black" }
+  ]
+}

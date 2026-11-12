@@ -1,0 +1,5 @@
+[
+  { "id": "cam-a", "name": "A720", "type": "RTSP", "url": "rtsp://127.0.0.1:8556/live", "shared": true },
+  { "id": "cam-b", "name": "B1080", "type": "RTSP", "url": "rtsp://127.0.0.1:8557/live", "shared": true, "maxHeight": 720, "bitrate": 2 },
+  { "id": "cam-c", "name": "C720", "type": "RTSP", "url": "rtsp://127.0.0.1:8559/live", "shared": true, "motion": true }
+]

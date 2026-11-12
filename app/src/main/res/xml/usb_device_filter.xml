@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Capture cards (USB video class). Lets the user tick "always open with this app" so the USB prompt stops repeating. -->
+<resources>
+    <usb-device class="14" />
+    <usb-device class="239" subclass="2" protocol="1" />
+</resources>

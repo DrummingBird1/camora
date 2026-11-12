@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Camora privacy policy</title><meta name="description" content="Your cameras and capture card, recorded and on every screen.">
+<link rel="icon" href="assets/icon-512.png"><style>
+:root{--bg:#1B1B22;--accent:#B8A4FF;--text:#ECEAF6;--muted:#B9B5CC;--card:#24242E}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Hebrew",Arial,sans-serif}
+a{color:var(--accent)}main{max-width:880px;margin:0 auto;padding:32px 20px 64px}
+header{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px;color:var(--text);text-decoration:none;font-weight:600;font-size:22px}
+.logo img{width:44px;height:44px;border-radius:12px}nav a{margin-inline-start:16px;text-decoration:none}
+.hero{padding:56px 0 24px}.hero h1{font-size:44px;line-height:1.15;margin:0 0 12px}.hero p{color:var(--muted);font-size:20px;margin:0 0 28px}
+.btn{display:inline-block;background:var(--accent);color:#1B1B22;padding:12px 22px;border-radius:12px;font-weight:600;text-decoration:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:40px 0}
+.card{background:var(--card);border-radius:16px;padding:20px}.card h3{margin:0 0 6px;font-size:18px}.card p{margin:0;color:var(--muted)}
+.shots{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px}.shots img{height:420px;border-radius:18px}
+table{border-collapse:collapse;width:100%;margin:12px 0}td,th{border:1px solid #3A3A48;padding:8px;text-align:start;vertical-align:top}
+.donate{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}.support{margin:40px 0}
+footer{margin-top:56px;color:var(--muted);font-size:14px}</style></head>
+<body><main>
+<header><a class="logo" href="index.html"><img src="assets/icon-512.png" alt="">Camora</a>
+<nav><a href="index.html">Home</a><a href="privacy.html">Privacy</a><a href="he/index.html">עברית</a></nav></header>
+<h1>Camora privacy policy</h1>
+<p>Last updated: 2026-11-12</p>
+<p>Contact: Solvaris2@gmail.com</p>
+<h2>Summary</h2>
+<p>Camora shows, records and streams video from your own IP cameras and USB capture cards. It has no account, no advertising and no analytics. Video, sound and settings stay on your phone and on the devices you choose to stream to.</p>
+<h2>What the app accesses and why</h2>
+<table>
+<tr><th>---</th><th>---</th></tr>
+<tr><td>Camera permission</td><td>Android only lets apps open a USB video device (a capture card) when they hold it. The phone's own cameras are not used.</td></tr>
+<tr><td>Microphone permission</td><td>A capture card's sound arrives as a USB audio input, read through the microphone API. The phone's own microphone is not recorded on purpose.</td></tr>
+<tr><td>Local network</td><td>To connect to your IP cameras, find TVs and Chromecast devices, and serve the stream to devices on your network.</td></tr>
+<tr><td>Notifications</td><td>To show that the app is recording, streaming or watching for motion, and to report detected motion.</td></tr>
+<tr><td>Storage (app folder)</td><td>Recordings are saved in the app's own folder. "Save to gallery" copies a recording to your Movies folder only when you ask.</td></tr>
+</table>
+<h2>Data stored on the phone</h2>
+<ul>
+<li>Camera names and addresses. Camera passwords are encrypted with a key kept in the Android Keystore.</li>
+<li>Recordings and a list of motion events.</li>
+<li>App settings.</li>
+</ul>
+<p>Uninstalling the app deletes all of this, except recordings you saved to the gallery.</p>
+<h2>Data that leaves the phone</h2>
+<ul>
+<li><strong>Streaming:</strong> when you turn on the streaming server, devices on your network that have the link (which contains a secret key) can watch the cameras you share.</li>
+<li><strong>Remote access (off by default):</strong> if you turn it on, the app asks your router to open a port so the stream can be reached from the internet, protected only by the secret key.</li>
+<li><strong>Chromecast:</strong> casting uses Google Play services. Google's privacy policy applies to that part: <a href="https://policies.google.com/privacy">https://policies.google.com/privacy</a></li>
+<li><strong>Feedback (only when you ask):</strong> "Send feedback" in Settings opens your email app with a report attached: app and Android version, phone model, the last crash and the app's own recent log. Camera addresses, passwords and stream keys are removed from it, and you can read it before you send. Nothing is sent unless you press Send.</li>
+<li>Nothing else is sent to the developer.</li>
+</ul>
+<h2>Children</h2>
+<p>The app is not directed at children.</p>
+<h2>Changes</h2>
+<p>Changes to this policy will be published at the same address with a new date.</p>
+<footer>© 2026 Camora</footer>
+</main></body></html>

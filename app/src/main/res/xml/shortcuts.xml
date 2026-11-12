@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press shortcuts on the launcher icon. MainActivity handles the actions. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="record_all"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_record"
+        android:shortcutShortLabel="@string/shortcut_record"
+        android:shortcutLongLabel="@string/shortcut_record_long">
+        <intent
+            android:action="app.ipcamhub.action.RECORD_ALL"
+            android:targetPackage="app.ipcamhub"
+            android:targetClass="app.ipcamhub.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="stop_all"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_stop"
+        android:shortcutShortLabel="@string/shortcut_stop"
+        android:shortcutLongLabel="@string/shortcut_stop_long">
+        <intent
+            android:action="app.ipcamhub.action.STOP_ALL"
+            android:targetPackage="app.ipcamhub"
+            android:targetClass="app.ipcamhub.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="stream"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_stream"
+        android:shortcutShortLabel="@string/tab_stream"
+        android:shortcutLongLabel="@string/stream_title">
+        <intent
+            android:action="app.ipcamhub.action.OPEN_STREAM"
+            android:targetPackage="app.ipcamhub"
+            android:targetClass="app.ipcamhub.MainActivity" />
+    </shortcut>
+</shortcuts>

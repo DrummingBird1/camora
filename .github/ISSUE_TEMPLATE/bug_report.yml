@@ -1,0 +1,52 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please do not paste stream addresses with their `?k=` key or camera passwords.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: phone
+    attributes:
+      label: Phone and Android version
+      placeholder: Galaxy S24, Android 15
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source
+      options:
+        - IP camera (RTSP / ONVIF)
+        - USB capture card
+        - Both / not related to a source
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Camera or capture card model
+      placeholder: e.g. Reolink E1, MS2109 capture card
+  - type: input
+    id: screen
+    attributes:
+      label: Where were you watching? (if streaming)
+      placeholder: Browser, Samsung TV (DLNA), Chromecast, VLC...
+  - type: input
+    id: version
+    attributes:
+      label: Camora version
+      placeholder: 0.3.0
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or logs
+      description: Drag images here. Logs from `adb logcat` are welcome (remove any keys first).
