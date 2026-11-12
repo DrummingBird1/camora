@@ -34,6 +34,9 @@ class AppCastOptions : OptionsProvider {
 object CastController {
     private const val TAG = "CastController"
 
+    /** This build includes Google's Cast library (the "full" flavor). The "foss" flavor has none. */
+    const val supported = true
+
     data class Target(val id: String, val name: String)
 
     private val _targets = MutableStateFlow<List<Target>>(emptyList())

@@ -1,0 +1,79 @@
+name: Release
+
+# Push a tag such as v1.0.0 (matching versionName in app/build.gradle.kts) to build signed APKs of both
+# flavors and the Play bundle, and publish them as a GitHub Release with the notes from CHANGELOG.md.
+# Needs four repository secrets (Settings > Secrets and variables > Actions):
+#   KEYSTORE_BASE64   the upload keystore (.jks), base64-encoded
+#   KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build, for example v1.0.0
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Check the tag matches the app version
+        run: |
+          version=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          if [ "v$version" != "$TAG" ]; then
+            echo "::error::Tag $TAG does not match versionName $version in app/build.gradle.kts"; exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Set up the signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Signing secrets are missing; see the comment at the top of release.yml"; exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > release.jks
+          printf 'storeFile=release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > keystore.properties
+
+      - name: Test and build
+        run: ./gradlew testFullDebugUnitTest testFossDebugUnitTest assembleFullRelease assembleFossRelease bundleFullRelease
+
+      - name: Collect files
+        run: |
+          mkdir dist
+          cp app/build/outputs/apk/full/release/app-full-release.apk "dist/camora-$VERSION.apk"
+          cp app/build/outputs/apk/foss/release/app-foss-release.apk "dist/camora-$VERSION-foss.apk"
+          cp app/build/outputs/bundle/fullRelease/app-full-release.aab "dist/camora-$VERSION.aab"
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+          # Release notes: this version's section of CHANGELOG.md.
+          awk -v v="$VERSION" '/^## /{p = index($0, "## " v) == 1; next} p' CHANGELOG.md > notes.md
+          printf '\n**Which file?** `camora-%s.apk` includes Chromecast. `camora-%s-foss.apk` has no Google components (no Chromecast). The `.aab` is for Google Play.\n' "$VERSION" "$VERSION" >> notes.md
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$TAG" dist/* --title "Camora $VERSION" --notes-file notes.md --verify-tag
+
+      - name: Remove the signing key
+        if: always()
+        run: rm -f release.jks keystore.properties

@@ -60,7 +60,7 @@ Necesitas JDK 17+ y Android SDK 36.
 git clone https://github.com/DrummingBird1/camora.git
 cd camora
 ./gradlew assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/full/debug/app-full-debug.apk
 ```
 
 ## 📚 Documentación

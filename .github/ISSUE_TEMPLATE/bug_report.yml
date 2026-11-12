@@ -45,8 +45,18 @@ body:
     attributes:
       label: Camora version
       placeholder: 1.0.0
+  - type: dropdown
+    id: from
+    attributes:
+      label: Installed from
+      options:
+        - Google Play
+        - GitHub (camora-x.y.z.apk)
+        - GitHub (camora-x.y.z-foss.apk)
+        - F-Droid or IzzyOnDroid
+        - Built from source
   - type: textarea
     id: extra
     attributes:
       label: Screenshots or logs
-      description: Drag images here. Logs from `adb logcat` are welcome (remove any keys first).
+      description: Drag images here. Logs from `adb logcat` are welcome (remove any keys first). Settings, Send feedback in the app makes a report with the log, already cleaned of addresses and keys.

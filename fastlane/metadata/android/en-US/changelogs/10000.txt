@@ -1,0 +1,7 @@
+First release.
+- IP cameras (RTSP/ONVIF) and HDMI capture cards with sound
+- Recording, motion alerts and record on motion, also in the background
+- Streaming to browsers, DLNA TVs and HLS players, up to 4K and H.265
+- Built-in demo, QR code for the stream, quick settings tile and shortcuts
+- Stops recording on low battery, heat or low storage
+- 8 languages

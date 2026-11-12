@@ -3,7 +3,7 @@
 ## 1. Unit tests (no device)
 
 ```bash
-./gradlew testDebugUnitTest lintDebug
+./gradlew testFullDebugUnitTest testFossDebugUnitTest lintFullDebug lintFossDebug
 ```
 
 Pure logic only: fMP4/HLS packaging, Annex B conversion, ONVIF/DLNA/UPnP parsing, retention, motion detection, encode parameters. Add a test with every change to these.

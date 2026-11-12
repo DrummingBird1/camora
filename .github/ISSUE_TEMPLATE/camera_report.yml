@@ -1,0 +1,51 @@
+name: Camera or capture card report
+description: Tell us whether your IP camera or capture card works with Camora
+labels: [compatibility]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports like this, good or bad, are how Camora learns which devices work. Please do not paste camera passwords or stream keys.
+  - type: input
+    id: model
+    attributes:
+      label: Brand and model
+      placeholder: e.g. Reolink RLC-510A, Tapo C200, MS2109 capture card
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Does it work?
+      options:
+        - Works well
+        - Works with problems
+        - Does not work
+    validations:
+      required: true
+  - type: checkboxes
+    id: what
+    attributes:
+      label: What did you try?
+      options:
+        - label: Live view
+        - label: Sound
+        - label: Recording
+        - label: Motion detection
+        - label: Streaming to a browser, TV or Chromecast
+        - label: ONVIF discovery found the camera
+  - type: input
+    id: url
+    attributes:
+      label: Stream address format (without user name, password or IP)
+      placeholder: rtsp://<ip>:554/h264Preview_01_main
+  - type: input
+    id: phone
+    attributes:
+      label: Phone, Android version and Camora version
+      placeholder: Pixel 8, Android 15, Camora 1.0.0
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: What went wrong, settings that helped (TCP or UDP, resolution, H.264 or H.265).

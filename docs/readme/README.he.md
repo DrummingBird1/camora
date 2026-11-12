@@ -64,7 +64,7 @@ Android 8.0 ומעלה. כרטיס לכידה צריך USB OTG (מתאם או כ
 git clone https://github.com/DrummingBird1/camora.git
 cd camora
 ./gradlew assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/full/debug/app-full-debug.apk
 ```
 
 <div dir="rtl">

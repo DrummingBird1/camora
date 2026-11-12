@@ -32,7 +32,7 @@ Uninstalling the app deletes all of this, except recordings you saved to the gal
 
 - **Streaming:** when you turn on the streaming server, devices on your network that have the link (which contains a secret key) can watch the cameras you share.
 - **Remote access (off by default):** if you turn it on, the app asks your router to open a port so the stream can be reached from the internet, protected only by the secret key.
-- **Chromecast:** casting uses Google Play services. Google's privacy policy applies to that part: https://policies.google.com/privacy
+- **Chromecast:** casting uses Google Play services. Google's privacy policy applies to that part: https://policies.google.com/privacy. The F-Droid build (foss) has no Chromecast support and no Google code at all.
 - **Feedback (only when you ask):** "Send feedback" in Settings opens your email app with a report attached: app and Android version, phone model, the last crash and the app's own recent log. Camera addresses, passwords and stream keys are removed from it, and you can read it before you send. Nothing is sent unless you press Send.
 - Nothing else is sent to the developer.
 
@@ -74,6 +74,6 @@ Camora מציגה, מקליטה ומשדרת וידאו מהמצלמות שלך 
 
 - **שידור:** כששרת השידור פועל, מכשירים ברשת שלך שיש להם את הקישור (עם מפתח סודי) יכולים לצפות במצלמות ששיתפת.
 - **גישה מרחוק (כבויה כברירת מחדל):** אם מפעילים אותה, האפליקציה מבקשת מהנתב לפתוח פורט כדי שאפשר יהיה לצפות מהאינטרנט, מוגן רק במפתח הסודי.
-- **Chromecast:** משתמש בשירותי Google Play, ועל החלק הזה חלה מדיניות הפרטיות של Google.
+- **Chromecast:** משתמש בשירותי Google Play, ועל החלק הזה חלה מדיניות הפרטיות של Google. בגרסת F-Droid ‏(foss) אין תמיכה ב-Chromecast ואין שום קוד של Google.
 - **משוב (רק כשמבקשים):** "שליחת משוב" בהגדרות פותח את אפליקציית המייל עם דוח מצורף: גרסת האפליקציה ואנדרואיד, דגם הטלפון, הקריסה האחרונה והיומן האחרון של האפליקציה עצמה. כתובות מצלמות, סיסמאות ומפתחות שידור מוסרים ממנו, ואפשר לקרוא אותו לפני השליחה. שום דבר לא נשלח בלי שלוחצים על שליחה.
 - מעבר לזה, שום מידע לא נשלח למפתח.

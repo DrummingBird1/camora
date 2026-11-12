@@ -40,6 +40,14 @@ android {
         }
     }
 
+    // "full" includes Chromecast (Google Play services, not free software); "foss" leaves it out for
+    // F-Droid and IzzyOnDroid. Everything else is the same.
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("full") { dimension = "distribution" }
+        create("foss") { dimension = "distribution" }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -80,7 +88,7 @@ dependencies {
     implementation(libs.media3.rtsp)
     implementation(libs.media3.ui)
     implementation(libs.androidx.lifecycle.process)
-    implementation(libs.play.services.cast)
+    "fullImplementation"(libs.play.services.cast)
     implementation(libs.nanohttpd)
     implementation(libs.uvc.android)
     implementation(libs.androidx.core.splashscreen)

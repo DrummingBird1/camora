@@ -135,6 +135,8 @@ fun StreamScreen(repo: CameraRepository, modifier: Modifier = Modifier) {
                 format
             ) { format = it }
 
+            // The foss build has no Chromecast support, so the section is left out there.
+            if (CastController.supported) {
             Text("Chromecast / Google TV", style = MaterialTheme.typography.titleSmall)
             when {
                 !castAvailable -> Text(Strings.get(R.string.cast_unavailable), style = MaterialTheme.typography.bodySmall)
@@ -152,6 +154,7 @@ fun StreamScreen(repo: CameraRepository, modifier: Modifier = Modifier) {
             }
             castStatus?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
             if (castStatus != null) OutlinedButton(onClick = { CastController.stop() }) { Text(Strings.get(R.string.stop_cast)) }
+            }
 
             Text(Strings.get(R.string.dlna_title), style = MaterialTheme.typography.titleSmall)
             TextButton(enabled = !scanning, onClick = {

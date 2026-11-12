@@ -45,7 +45,8 @@ fun LicensesScreen(modifier: Modifier = Modifier) {
     LazyColumn(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { Text(Strings.get(R.string.licenses_title), style = MaterialTheme.typography.titleLarge) }
         item { Text(Strings.get(R.string.licenses_note), style = MaterialTheme.typography.bodySmall) }
-        items(COMPONENTS) { c ->
+        // The foss flavor does not ship the Cast library.
+        items(COMPONENTS.filter { app.ipcamhub.core.CastController.supported || !it.name.contains("Cast framework") }) { c ->
             Card(
                 Modifier.fillMaxWidth().clickable {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(c.url)))

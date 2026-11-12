@@ -1,0 +1,22 @@
+<p>Camora turns an Android phone into a small video hub for your own cameras: watch IP cameras and HDMI capture cards, record them, get motion alerts, and put them on any screen in the house. No account, no ads, no tracking.</p>
+<p><b>Cameras and capture cards</b></p>
+<ul>
+<li>IP cameras over RTSP (TCP or UDP), ONVIF discovery, automatic reconnect; passwords are encrypted on the phone</li>
+<li>USB HDMI capture cards (UVC) with sound, up to 60 frames per second</li>
+<li>A built-in demo, so you can try everything without a camera</li>
+</ul>
+<p><b>Recording and motion</b></p>
+<ul>
+<li>MP4 with sound, record on motion, cleanup by age or storage limit, save to the gallery</li>
+<li>Motion alerts in three sensitivities, also in the background and with the screen off</li>
+<li>Recording stops by itself on low battery, heat or low storage</li>
+</ul>
+<p><b>On every screen</b></p>
+<ul>
+<li>Low-delay player in any browser on your network, with a QR code to open it</li>
+<li>Live stream for Samsung and other DLNA TVs, HLS for VLC and other players</li>
+<li>Up to 4K, H.264 or H.265 per camera; optional HTTPS</li>
+</ul>
+<p><b>Private by design</b></p>
+<p>Everything stays on your network. No account, no analytics, no ads. Free and open source under the Apache 2.0 license, in 8 languages.</p>
+<p>This F-Droid build has no Chromecast support, because Google's Cast library is not free software. The Google Play and GitHub builds include it.</p>
