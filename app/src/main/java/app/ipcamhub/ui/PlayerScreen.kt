@@ -23,15 +23,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
-import java.io.File
 
 /** Full-screen player for a saved recording, with the standard seek and pause controls. */
 @Composable
-fun PlayerScreen(file: File, onClose: () -> Unit) {
+fun PlayerScreen(uri: Uri, onClose: () -> Unit) {
     val context = LocalContext.current
-    val player = remember(file) {
+    val player = remember(uri) {
         ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(Uri.fromFile(file)))
+            setMediaItem(MediaItem.fromUri(uri))
             prepare()
             playWhenReady = true
         }

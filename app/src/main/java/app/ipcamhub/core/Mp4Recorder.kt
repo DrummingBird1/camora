@@ -4,11 +4,10 @@ import android.media.MediaCodec
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.util.Log
-import java.io.File
 import java.nio.ByteBuffer
 
 /** Writes the encoded stream (video, and AAC audio when the source has it) to an MP4 file. */
-class Mp4Recorder(override val file: File) : Recorder {
+class Mp4Recorder(override val output: RecordingOutput) : Recorder {
 
     private class Pending(val data: ByteArray, val info: MediaCodec.BufferInfo, val audio: Boolean)
 
@@ -47,8 +46,12 @@ class Mp4Recorder(override val file: File) : Recorder {
         if (started) return
         val v = videoFormat ?: return
         if (expectAudio && audioFormat == null && !force) return
-        file.parentFile?.mkdirs()
-        val m = MediaMuxer(file.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        val m = try {
+            MediaMuxer(output.open().fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        } catch (e: Exception) {
+            Log.e("Mp4Recorder", "cannot open ${output.name}", e)
+            return
+        }
         videoTrack = m.addTrack(v)
         audioFormat?.let { audioTrack = m.addTrack(it) }
         m.start()
@@ -102,7 +105,7 @@ class Mp4Recorder(override val file: File) : Recorder {
         val m = muxer
         muxer = null
         if (m == null) {
-            if (samples == 0) file.delete()
+            if (samples == 0) output.delete() else output.close()
             return
         }
         try {
@@ -111,6 +114,7 @@ class Mp4Recorder(override val file: File) : Recorder {
             Log.w("Mp4Recorder", "stop failed", e)
         }
         m.release()
-        if (samples == 0) file.delete()
+        output.close()
+        if (samples == 0) output.delete()
     }
 }

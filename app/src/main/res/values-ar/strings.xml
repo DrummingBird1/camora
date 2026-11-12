@@ -204,8 +204,9 @@
     <string name="storage_removable">تخزين خارجي</string>
     <string name="storage_free">%1$s متاح من %2$s</string>
     <string name="storage_missing">وحدة التخزين المختارة غير متصلة. يتم التسجيل على الهاتف بدلًا منها.</string>
-    <string name="storage_hint">أدخل بطاقة SD أو وصّل وحدة USB أو SSD لاختيارها هنا.</string>
-    <string name="storage_uninstall_note">تُحفظ التسجيلات في مجلد Camora على كل وحدة تخزين وتُحذف عند إلغاء تثبيت التطبيق. يحتفظ «حفظ في المعرض» بنسخة.</string>
+    <string name="storage_uninstall_note">تُحذف التسجيلات على الهاتف أو بطاقة SD عند إلغاء تثبيت التطبيق، ويحتفظ «حفظ في المعرض» بنسخة. تبقى التسجيلات في المجلد الذي اخترته.</string>
+    <string name="storage_pick_folder">اختيار مجلد (وحدة USB أو SSD…)</string>
+    <string name="storage_pick_hint">وصّل وحدة USB أو SSD، واضغط «اختيار مجلد»، وافتح الوحدة واختر مجلدًا للتسجيلات أو أنشئه. تبقى التسجيلات هناك حتى بعد إلغاء تثبيت التطبيق.</string>
     <string name="select">تحديد</string>
     <string name="select_all">تحديد الكل</string>
     <string name="select_none">إلغاء التحديد</string>

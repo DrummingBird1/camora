@@ -204,8 +204,9 @@
     <string name="storage_removable">Внешний накопитель</string>
     <string name="storage_free">Свободно %1$s из %2$s</string>
     <string name="storage_missing">Выбранный накопитель не подключён. Запись идёт в память телефона.</string>
-    <string name="storage_hint">Вставьте SD-карту или подключите USB-накопитель или SSD, чтобы выбрать его здесь.</string>
-    <string name="storage_uninstall_note">Записи хранятся в папке Camora на каждом накопителе и удаляются при удалении приложения. «Сохранить в галерею» оставляет копию.</string>
+    <string name="storage_uninstall_note">Записи в памяти телефона или на SD-карте удаляются вместе с приложением; «Сохранить в галерею» оставляет копию. Записи в выбранной папке остаются.</string>
+    <string name="storage_pick_folder">Выбрать папку (USB-накопитель, SSD…)</string>
+    <string name="storage_pick_hint">Подключите USB-накопитель или SSD, нажмите «Выбрать папку», откройте накопитель и выберите или создайте папку для записей. Записи там сохранятся и после удаления приложения.</string>
     <string name="select">Выбрать</string>
     <string name="select_all">Выбрать все</string>
     <string name="select_none">Снять выбор</string>

@@ -204,8 +204,9 @@
     <string name="storage_removable">External storage</string>
     <string name="storage_free">%1$s free of %2$s</string>
     <string name="storage_missing">The chosen storage is not connected. Recording to the phone instead.</string>
-    <string name="storage_hint">Insert an SD card or connect a USB drive or SSD to choose it here.</string>
-    <string name="storage_uninstall_note">Recordings are kept in Camora’s folder on each storage and are deleted if the app is uninstalled. Save to gallery keeps a copy.</string>
+    <string name="storage_uninstall_note">Recordings on the phone or an SD card are deleted if the app is uninstalled; Save to gallery keeps a copy. Recordings in a chosen folder stay.</string>
+    <string name="storage_pick_folder">Choose a folder (USB drive, SSD…)</string>
+    <string name="storage_pick_hint">Connect a USB drive or SSD, tap “Choose a folder”, open the drive and pick or create a folder for recordings. Recordings there stay when the app is uninstalled.</string>
     <string name="select">Select</string>
     <string name="select_all">Select all</string>
     <string name="select_none">Select none</string>

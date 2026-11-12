@@ -204,8 +204,9 @@
     <string name="storage_removable">אחסון חיצוני</string>
     <string name="storage_free">%1$s פנויים מתוך %2$s</string>
     <string name="storage_missing">אמצעי האחסון שנבחר לא מחובר. ההקלטה נשמרת בטלפון במקום.</string>
-    <string name="storage_hint">הכניסו כרטיס SD או חברו כונן USB או SSD כדי לבחור בו כאן.</string>
-    <string name="storage_uninstall_note">ההקלטות נשמרות בתיקייה של Camora בכל אמצעי אחסון, ונמחקות אם מסירים את האפליקציה. \"שמור בגלריה\" שומר עותק.</string>
+    <string name="storage_uninstall_note">הקלטות בטלפון או בכרטיס SD נמחקות אם מסירים את האפליקציה, ו\"שמור בגלריה\" שומר עותק. הקלטות בתיקייה שבחרתם נשארות.</string>
+    <string name="storage_pick_folder">בחירת תיקייה (כונן USB‏, SSD…)</string>
+    <string name="storage_pick_hint">חברו כונן USB או SSD, לחצו על \"בחירת תיקייה\", פתחו את הכונן ובחרו או צרו תיקייה להקלטות. הקלטות שם נשארות גם אם מסירים את האפליקציה.</string>
     <string name="select">בחירה</string>
     <string name="select_all">בחר הכל</string>
     <string name="select_none">נקה בחירה</string>

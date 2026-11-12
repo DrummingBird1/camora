@@ -96,7 +96,7 @@ class Outputs(var camera: CameraConfig) {
     var recording: Boolean = false
 
     /** File being written right now, so cleanup never deletes it. */
-    var currentFile: java.io.File? = null
+    var currentOutput: RecordingOutput? = null
 
     fun ensureSource(context: Context) {
         if (source != null) return

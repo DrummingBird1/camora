@@ -7,7 +7,6 @@ import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 
 /** Container a recording is written in. MP4 is the default; MKV and TS keep what was written if the app is killed. */
@@ -19,19 +18,49 @@ enum class RecordingFormat(val extension: String, val mime: String) {
     companion object {
         fun of(name: String?): RecordingFormat = entries.firstOrNull { it.name == name } ?: MP4
         val extensions: Set<String> = entries.map { it.extension }.toSet()
-        fun mimeOf(file: File): String = entries.firstOrNull { it.extension == file.extension.lowercase() }?.mime ?: "video/*"
+        fun mimeOf(name: String): String =
+            entries.firstOrNull { it.extension == name.substringAfterLast('.', "").lowercase() }?.mime ?: "video/*"
     }
 }
 
-/** Something that writes the encoded stream to [file]. */
+/** Something that writes the encoded stream to [output]. */
 interface Recorder : EncodedSink {
-    val file: File
+    val output: RecordingOutput
 }
 
-fun newRecorder(format: RecordingFormat, file: File): Recorder = when (format) {
-    RecordingFormat.MP4 -> Mp4Recorder(file)
-    RecordingFormat.MKV -> MkvRecorder(file)
-    RecordingFormat.TS -> TsRecorder(file)
+fun newRecorder(format: RecordingFormat, output: RecordingOutput): Recorder = when (format) {
+    RecordingFormat.MP4 -> Mp4Recorder(output)
+    RecordingFormat.MKV -> MkvRecorder(output)
+    RecordingFormat.TS -> TsRecorder(output)
+}
+
+/** A file opened for writing, with a position that can be moved back to fill in headers. */
+internal class SeekableOut(output: RecordingOutput) {
+    private val stream = java.io.FileOutputStream(output.open().fileDescriptor)
+    private val ch: java.nio.channels.FileChannel = stream.channel
+
+    init {
+        ch.truncate(0)
+        ch.position(0)
+    }
+
+    var position: Long
+        get() = ch.position()
+        set(v) {
+            ch.position(v)
+        }
+
+    val size: Long get() = ch.size()
+
+    fun write(b: ByteArray) {
+        val buf = ByteBuffer.wrap(b)
+        while (buf.hasRemaining()) ch.write(buf)
+    }
+
+    fun close() {
+        ch.force(false)
+        stream.close()
+    }
 }
 
 /** Codec details of the video track, read from the encoder's output format. */
@@ -90,7 +119,7 @@ class VideoTrackInfo(
  * seconds for sound), starts the timeline at the first video frame, keeps timestamps increasing, and
  * deletes a file that never got a frame.
  */
-abstract class PacketRecorder(final override val file: File) : Recorder {
+abstract class PacketRecorder(final override val output: RecordingOutput) : Recorder {
     private var expectAudio = false
     private var videoFormat: MediaFormat? = null
     private var audio: Fmp4.AudioConfig? = null
@@ -142,11 +171,10 @@ abstract class PacketRecorder(final override val file: File) : Recorder {
         val v = VideoTrackInfo.from(format) ?: return
         video = v
         try {
-            file.parentFile?.mkdirs()
             start(v, audio.takeIf { expectAudio })
             started = true
         } catch (e: Exception) {
-            Log.e("Recorder", "cannot start ${file.name}", e)
+            Log.e("Recorder", "cannot start ${output.name}", e)
             failed = true
             return
         }
@@ -190,7 +218,7 @@ abstract class PacketRecorder(final override val file: File) : Recorder {
             writeVideo(avcc, us, key)
             samples++
         } catch (e: Exception) {
-            Log.e("Recorder", "write failed for ${file.name}", e)
+            Log.e("Recorder", "write failed for ${output.name}", e)
             failed = true
         }
     }
@@ -206,7 +234,7 @@ abstract class PacketRecorder(final override val file: File) : Recorder {
         try {
             writeAudio(frame, us)
         } catch (e: Exception) {
-            Log.e("Recorder", "audio write failed for ${file.name}", e)
+            Log.e("Recorder", "audio write failed for ${output.name}", e)
             failed = true
         }
     }
@@ -217,21 +245,22 @@ abstract class PacketRecorder(final override val file: File) : Recorder {
             try {
                 finish()
             } catch (e: Exception) {
-                Log.w("Recorder", "finishing ${file.name} failed", e)
+                Log.w("Recorder", "finishing ${output.name} failed", e)
             }
         }
-        if (samples == 0) file.delete()
+        output.close()
+        if (samples == 0) output.delete()
     }
 }
 
 /** MPEG transport stream: tables before every key frame, so the file plays from any point and survives a crash. */
-class TsRecorder(file: File) : PacketRecorder(file) {
+class TsRecorder(output: RecordingOutput) : PacketRecorder(output) {
     private var out: BufferedOutputStream? = null
     private var writer: MpegTsWriter? = null
 
     override fun start(video: VideoTrackInfo, audio: Fmp4.AudioConfig?) {
         writer = MpegTsWriter(audio?.sampleRate ?: 0, audio?.channels ?: 2, video.annexBParams, video.hevc)
-        out = BufferedOutputStream(FileOutputStream(file), 256 * 1024)
+        out = BufferedOutputStream(FileOutputStream(output.open().fileDescriptor), 256 * 1024)
     }
 
     override fun writeVideo(avcc: ByteArray, us: Long, key: Boolean) {
@@ -258,8 +287,8 @@ class TsRecorder(file: File) : PacketRecorder(file) {
  * crash still plays up to its last cluster. On a normal stop the segment size, the duration and a cue
  * index (for fast seeking) are filled in.
  */
-class MkvRecorder(file: File) : PacketRecorder(file) {
-    private var raf: RandomAccessFile? = null
+class MkvRecorder(output: RecordingOutput) : PacketRecorder(output) {
+    private var raf: SeekableOut? = null
     private var segmentDataStart = 0L
     private var segmentSizeAt = 0L
     private var durationAt = 0L
@@ -272,33 +301,32 @@ class MkvRecorder(file: File) : PacketRecorder(file) {
 
     override fun start(video: VideoTrackInfo, audio: Fmp4.AudioConfig?) {
         hasAudio = audio != null
-        val r = RandomAccessFile(file, "rw")
-        r.setLength(0)
+        val r = SeekableOut(output)
         raf = r
         r.write(Ebml.element(Ebml.EBML,
             Ebml.uint(0x4286, 1), Ebml.uint(0x42F7, 1), Ebml.uint(0x42F2, 4), Ebml.uint(0x42F3, 8),
             Ebml.string(0x4282, "matroska"), Ebml.uint(0x4287, 4), Ebml.uint(0x4285, 2)))
         // Segment with an unknown size until the recording ends.
         r.write(Ebml.id(Ebml.SEGMENT))
-        segmentSizeAt = r.filePointer
+        segmentSizeAt = r.position
         r.write(Ebml.UNKNOWN_SIZE)
-        segmentDataStart = r.filePointer
+        segmentDataStart = r.position
 
         // SeekHead with fixed-size positions, so the Cues position can be filled in at the end.
         val seekHead = Ebml.element(Ebml.SEEK_HEAD,
             seek(Ebml.INFO, 0), seek(Ebml.TRACKS, 0), seek(Ebml.CUES, 0))
-        val seekHeadPos = r.filePointer
+        val seekHeadPos = r.position
         r.write(seekHead)
 
-        val infoPos = r.filePointer - segmentDataStart
+        val infoPos = r.position - segmentDataStart
         val info = Ebml.element(Ebml.INFO,
             Ebml.uint(0x2AD7B1, 1_000_000), // timestamps in milliseconds
             Ebml.string(0x4D80, "Camora"), Ebml.string(0x5741, "Camora"),
             Ebml.float(0x4489, 0.0))
         r.write(info)
-        durationAt = r.filePointer - 8 // the duration's 8 value bytes end the Info element
+        durationAt = r.position - 8 // the duration's 8 value bytes end the Info element
 
-        val tracksPos = r.filePointer - segmentDataStart
+        val tracksPos = r.position - segmentDataStart
         val videoTrack = Ebml.element(0xAE,
             Ebml.uint(0xD7, 1), Ebml.uint(0x73C5, 1), Ebml.uint(0x83, 1),
             Ebml.string(0x86, if (video.hevc) "V_MPEGH/ISO/HEVC" else "V_MPEG4/ISO/AVC"),
@@ -318,11 +346,11 @@ class MkvRecorder(file: File) : PacketRecorder(file) {
         // Fill in the Info and Tracks positions now; the Cues position comes at the end.
         val positions = Ebml.element(Ebml.SEEK_HEAD,
             seek(Ebml.INFO, infoPos), seek(Ebml.TRACKS, tracksPos), seek(Ebml.CUES, 0))
-        r.seek(seekHeadPos)
+        r.position = seekHeadPos
         r.write(positions)
         // Where the Cues position's 8 bytes are: the end of the SeekHead.
         cuesSeekAt = seekHeadPos + positions.size - 8
-        r.seek(r.length())
+        r.position = r.size
     }
 
     private fun seek(id: Int, position: Long): ByteArray =
@@ -347,7 +375,7 @@ class MkvRecorder(file: File) : PacketRecorder(file) {
         flushCluster()
         clusterStartMs = ms
         val r = raf ?: return
-        if (key) cues.add(ms to (r.filePointer - segmentDataStart))
+        if (key) cues.add(ms to (r.position - segmentDataStart))
     }
 
     private fun block(track: Int, ms: Long, data: ByteArray, key: Boolean) {
@@ -374,19 +402,19 @@ class MkvRecorder(file: File) : PacketRecorder(file) {
         val r = raf ?: return
         flushCluster()
         if (cues.isNotEmpty()) {
-            val cuesPos = r.filePointer - segmentDataStart
+            val cuesPos = r.position - segmentDataStart
             val points = cues.map { (ms, pos) ->
                 Ebml.element(0xBB, Ebml.uint(0xB3, ms),
                     Ebml.element(0xB7, Ebml.uint(0xF7, 1), Ebml.uint(0xF1, pos)))
             }
             r.write(Ebml.element(Ebml.CUES, *points.toTypedArray()))
-            r.seek(cuesSeekAt)
+            r.position = cuesSeekAt
             r.write(ByteBuffer.allocate(8).putLong(cuesPos).array())
         }
-        val segmentSize = r.length() - segmentDataStart
-        r.seek(segmentSizeAt)
+        val segmentSize = r.size - segmentDataStart
+        r.position = segmentSizeAt
         r.write(Ebml.size8(segmentSize))
-        r.seek(durationAt)
+        r.position = durationAt
         r.write(ByteBuffer.allocate(8).putDouble((lastMs + 33).toDouble()).array())
         r.close()
         raf = null

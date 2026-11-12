@@ -204,8 +204,9 @@
     <string name="storage_removable">Externer Speicher</string>
     <string name="storage_free">%1$s frei von %2$s</string>
     <string name="storage_missing">Der gewählte Speicher ist nicht verbunden. Es wird auf dem Telefon aufgenommen.</string>
-    <string name="storage_hint">Lege eine SD-Karte ein oder schließe ein USB-Laufwerk oder eine SSD an, um sie hier zu wählen.</string>
-    <string name="storage_uninstall_note">Aufnahmen liegen im Camora-Ordner jedes Speichers und werden beim Deinstallieren der App gelöscht. In Galerie speichern behält eine Kopie.</string>
+    <string name="storage_uninstall_note">Aufnahmen auf dem Telefon oder einer SD-Karte werden beim Deinstallieren gelöscht; In Galerie speichern behält eine Kopie. Aufnahmen in einem gewählten Ordner bleiben.</string>
+    <string name="storage_pick_folder">Ordner wählen (USB-Laufwerk, SSD…)</string>
+    <string name="storage_pick_hint">Schließe ein USB-Laufwerk oder eine SSD an, tippe auf „Ordner wählen“, öffne das Laufwerk und wähle oder erstelle einen Ordner für Aufnahmen. Aufnahmen dort bleiben beim Deinstallieren der App erhalten.</string>
     <string name="select">Auswählen</string>
     <string name="select_all">Alle auswählen</string>
     <string name="select_none">Auswahl aufheben</string>

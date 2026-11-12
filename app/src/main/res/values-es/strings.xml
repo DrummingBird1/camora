@@ -204,8 +204,9 @@
     <string name="storage_removable">Almacenamiento externo</string>
     <string name="storage_free">%1$s libres de %2$s</string>
     <string name="storage_missing">El almacenamiento elegido no está conectado. Se graba en el teléfono.</string>
-    <string name="storage_hint">Inserta una tarjeta SD o conecta una unidad USB o SSD para elegirla aquí.</string>
-    <string name="storage_uninstall_note">Las grabaciones se guardan en la carpeta de Camora de cada almacenamiento y se borran al desinstalar la app. Guardar en la galería conserva una copia.</string>
+    <string name="storage_uninstall_note">Las grabaciones en el teléfono o en una tarjeta SD se borran al desinstalar la app; Guardar en la galería conserva una copia. Las de una carpeta elegida se quedan.</string>
+    <string name="storage_pick_folder">Elegir una carpeta (unidad USB, SSD…)</string>
+    <string name="storage_pick_hint">Conecta una unidad USB o SSD, toca «Elegir una carpeta», abre la unidad y elige o crea una carpeta para las grabaciones. Las grabaciones allí se conservan al desinstalar la app.</string>
     <string name="select">Seleccionar</string>
     <string name="select_all">Seleccionar todo</string>
     <string name="select_none">Quitar selección</string>

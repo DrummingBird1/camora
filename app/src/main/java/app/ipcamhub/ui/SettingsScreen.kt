@@ -163,19 +163,34 @@ fun SettingsScreen(onOpenUsb: () -> Unit, onOpenLicenses: () -> Unit = {}, modif
     }
 }
 
-/** Where new recordings are saved: every connected storage with its free space. Checked again on return to the app. */
+/**
+ * Where new recordings are saved: every connected storage with its free space, plus folders picked with
+ * the system folder picker (the way to reach a USB drive or SSD on most phones). Checked again on return.
+ */
 @Composable
 private fun StorageChoice(selected: String, onSelect: (String) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    var options by remember { mutableStateOf(app.ipcamhub.core.RecordingStorage.options(context)) }
-    // A card or drive plugged in while the app is open shows up when the screen is shown again.
+    val storage = app.ipcamhub.core.RecordingStorage
+    var options by remember { mutableStateOf(storage.options(context)) }
+    fun refresh() {
+        options = storage.options(context)
+    }
     val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
     androidx.compose.runtime.DisposableEffect(lifecycle) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) options = app.ipcamhub.core.RecordingStorage.options(context)
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) refresh()
         }
         lifecycle.addObserver(observer)
         onDispose { lifecycle.removeObserver(observer) }
+    }
+    val pickFolder = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            val id = runCatching { storage.rememberPickedFolder(context, uri) }.getOrNull()
+            refresh()
+            if (id != null) onSelect(id)
+        }
     }
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(Strings.get(R.string.save_recordings_to), style = MaterialTheme.typography.labelLarge)
@@ -187,18 +202,23 @@ private fun StorageChoice(selected: String, onSelect: (String) -> Unit) {
                 androidx.compose.material3.RadioButton(selected = o.id == selected, onClick = { onSelect(o.id) })
                 Column(Modifier.weight(1f)) {
                     Text(o.label)
-                    Text(
-                        Strings.get(R.string.storage_free, "‎" + gb(o.freeBytes), "‎" + gb(o.totalBytes)),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    val free = o.freeBytes
+                    val total = o.totalBytes
+                    if (free != null && total != null) {
+                        Text(
+                            Strings.get(R.string.storage_free, "\u200E" + gb(free), "\u200E" + gb(total)),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             }
         }
         if (options.none { it.id == selected }) {
             Text(Strings.get(R.string.storage_missing), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         }
-        if (options.size == 1) Text(Strings.get(R.string.storage_hint), style = MaterialTheme.typography.bodySmall)
-        else Text(Strings.get(R.string.storage_uninstall_note), style = MaterialTheme.typography.bodySmall)
+        TextButton(onClick = { pickFolder.launch(null) }) { Text(Strings.get(R.string.storage_pick_folder)) }
+        Text(Strings.get(R.string.storage_pick_hint), style = MaterialTheme.typography.bodySmall)
+        if (options.size > 1) Text(Strings.get(R.string.storage_uninstall_note), style = MaterialTheme.typography.bodySmall)
     }
 }
 

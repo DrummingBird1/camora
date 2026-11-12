@@ -188,35 +188,39 @@ object Hub {
     private var missingStorageNoticed = false
 
     /** Where new recordings go: the chosen storage, or the phone when that storage is not connected. */
-    fun recordingsDir(): File {
+    private fun recordingStorageId(): String {
         val id = settings.storageId
-        if (id != RecordingStorage.PRIMARY) {
-            RecordingStorage.dirFor(app, id)?.let {
-                missingStorageNoticed = false
-                return it
-            }
-            if (!missingStorageNoticed) {
-                missingStorageNoticed = true
-                alert(Strings.get(R.string.storage_missing))
-            }
+        if (id == RecordingStorage.PRIMARY) return id
+        if (RecordingStorage.isAvailable(app, id)) {
+            missingStorageNoticed = false
+            return id
         }
-        return RecordingStorage.primaryDir(app)
+        if (!missingStorageNoticed) {
+            missingStorageNoticed = true
+            alert(Strings.get(R.string.storage_missing))
+        }
+        return RecordingStorage.PRIMARY
     }
 
     /** Recordings on every connected storage, newest first. */
-    fun listRecordings(): List<File> = RecordingStorage.allRecordings(app)
+    fun listRecordings(): List<RecordingItem> = RecordingStorage.allRecordings(app)
 
     /** Bytes the camera's encoders produced so far, or null when nothing is being encoded for it. */
     fun encodedBytes(id: String): Long? = outputs[id]?.takeIf { it.source != null }?.mux?.bytesOut
 
     /** Files being written right now; they must not be moved or deleted. */
-    fun activeRecordingFiles(): Set<String> = outputs.values.mapNotNull { it.currentFile?.absolutePath }.toSet()
+    fun activeRecordingFiles(): Set<String> = outputs.values.mapNotNull { it.currentOutput?.key }.toSet()
 
-    /** Enough space where new recordings go and where the running ones are being written. */
+    /**
+     * Enough space where new recordings go and where the running ones are being written. A picked folder
+     * reports its free space only through an open file, so it is checked once a recording is running there.
+     */
     private fun hasFreeSpace(): Boolean {
         val min = settings.minFreeMb.toLong() * 1024 * 1024
-        val dirs = outputs.values.mapNotNull { it.currentFile?.parentFile } + recordingsDir()
-        return dirs.distinct().all { it.exists() && it.usableSpace >= min }
+        val running = outputs.values.mapNotNull { it.currentOutput }
+        if (running.any { (it.freeBytes() ?: Long.MAX_VALUE) < min }) return false
+        val target = RecordingStorage.options(app).firstOrNull { it.id == recordingStorageId() } ?: return true
+        return (target.freeBytes ?: Long.MAX_VALUE) >= min
     }
 
     private enum class Problem { STORAGE, BATTERY, HEAT }
@@ -296,9 +300,15 @@ object Hub {
         val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val safeName = cam.name.replace(Regex("[^\\p{L}\\p{N}_-]"), "_")
         val format = RecordingFormat.of(settings.recordingFormat)
-        val file = File(recordingsDir(), "${safeName}_$stamp.${format.extension}")
-        o.currentFile = file
-        o.mux.attachRecorder(newRecorder(format, file))
+        val name = "${safeName}_$stamp.${format.extension}"
+        val output = RecordingStorage.createOutput(app, recordingStorageId(), name, format.mime)
+            ?: RecordingStorage.createOutput(app, RecordingStorage.PRIMARY, name, format.mime)
+            ?: run {
+                alert(Strings.get(R.string.save_failed))
+                return
+            }
+        o.currentOutput = output
+        o.mux.attachRecorder(newRecorder(format, output))
         o.recording = true
         _recording.value = _recording.value + cam.id
         _recordingSince.value = _recordingSince.value + (cam.id to System.currentTimeMillis())
@@ -316,7 +326,7 @@ object Hub {
         if (!o.recording) return
         o.mux.detachRecorder()
         o.recording = false
-        o.currentFile = null
+        o.currentOutput = null
         _recording.value = _recording.value - id
         _recordingSince.value = _recordingSince.value - id
         KeepAliveService.refresh(app)
@@ -329,13 +339,14 @@ object Hub {
     fun cleanup() {
         val s = settings
         if (s.retentionDays <= 0 && s.maxStorageMb <= 0) return
-        val protectedPaths = outputs.values.mapNotNull { it.currentFile?.absolutePath }.toSet()
+        val protectedPaths = activeRecordingFiles()
         scope.launch(Dispatchers.IO) {
-            val files = listRecordings().map { StoredFile(it.absolutePath, it.length(), it.lastModified()) }
+            val items = listRecordings().associateBy { it.key }
+            val files = items.values.map { StoredFile(it.key, it.sizeBytes, it.modifiedMs) }
             val doomed = Retention.filesToDelete(
                 files, System.currentTimeMillis(), s.retentionDays, s.maxStorageMb.toLong() * 1024 * 1024, protectedPaths
             )
-            doomed.forEach { File(it.path).delete() }
+            doomed.forEach { d -> items[d.path]?.let { RecordingStorage.delete(app, it) } }
             if (doomed.isNotEmpty()) Log.i(TAG, "cleanup removed ${doomed.size} recording(s)")
         }
     }

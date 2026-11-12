@@ -7,7 +7,11 @@ plugins {
 
 // Release signing comes from keystore.properties (git-ignored; see docs/RELEASE.md).
 // Without it, release builds are signed with the debug key so they can still be sideloaded.
-val keystoreProps = rootProject.file("keystore.properties").takeIf { it.exists() }?.let { file ->
+// It is looked for in the project root first, then in ~/.camora/ (to keep keys off the project drive).
+// A relative storeFile is resolved next to the keystore.properties it came from.
+val keystoreFile = listOf(rootProject.file("keystore.properties"), File(System.getProperty("user.home"), ".camora/keystore.properties"))
+    .firstOrNull { it.exists() }
+val keystoreProps = keystoreFile?.let { file ->
     Properties().apply { file.inputStream().use { load(it) } }
 }
 
@@ -31,7 +35,7 @@ android {
     signingConfigs {
         if (keystoreProps != null) {
             create("release") {
-                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storeFile = File(keystoreFile!!.parentFile, keystoreProps.getProperty("storeFile"))
                 storePassword = keystoreProps.getProperty("storePassword")
                 keyAlias = keystoreProps.getProperty("keyAlias")
                 keyPassword = keystoreProps.getProperty("keyPassword")

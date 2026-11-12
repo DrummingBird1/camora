@@ -204,8 +204,9 @@
     <string name="storage_removable">Stockage externe</string>
     <string name="storage_free">%1$s libres sur %2$s</string>
     <string name="storage_missing">Le stockage choisi n’est pas connecté. Enregistrement sur le téléphone.</string>
-    <string name="storage_hint">Insérez une carte SD ou branchez une clé USB ou un SSD pour le choisir ici.</string>
-    <string name="storage_uninstall_note">Les vidéos sont dans le dossier de Camora sur chaque stockage et sont supprimées si l’app est désinstallée. Enregistrer dans la galerie garde une copie.</string>
+    <string name="storage_uninstall_note">Les vidéos sur le téléphone ou une carte SD sont supprimées avec l’app ; Enregistrer dans la galerie garde une copie. Celles d’un dossier choisi restent.</string>
+    <string name="storage_pick_folder">Choisir un dossier (clé USB, SSD…)</string>
+    <string name="storage_pick_hint">Branchez une clé USB ou un SSD, touchez « Choisir un dossier », ouvrez le disque et choisissez ou créez un dossier pour les vidéos. Elles y restent si l’app est désinstallée.</string>
     <string name="select">Sélectionner</string>
     <string name="select_all">Tout sélectionner</string>
     <string name="select_none">Tout désélectionner</string>

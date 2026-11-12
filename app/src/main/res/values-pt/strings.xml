@@ -204,8 +204,9 @@
     <string name="storage_removable">Armazenamento externo</string>
     <string name="storage_free">%1$s livres de %2$s</string>
     <string name="storage_missing">O armazenamento escolhido não está conectado. Gravando no telefone.</string>
-    <string name="storage_hint">Insira um cartão SD ou conecte um pendrive ou SSD para escolhê-lo aqui.</string>
-    <string name="storage_uninstall_note">As gravações ficam na pasta do Camora em cada armazenamento e são apagadas se o app for desinstalado. Salvar na galeria mantém uma cópia.</string>
+    <string name="storage_uninstall_note">Gravações no telefone ou em um cartão SD são apagadas se o app for desinstalado; Salvar na galeria mantém uma cópia. As de uma pasta escolhida ficam.</string>
+    <string name="storage_pick_folder">Escolher uma pasta (pendrive, SSD…)</string>
+    <string name="storage_pick_hint">Conecte um pendrive ou SSD, toque em “Escolher uma pasta”, abra a unidade e escolha ou crie uma pasta para as gravações. As gravações ali ficam mesmo se o app for desinstalado.</string>
     <string name="select">Selecionar</string>
     <string name="select_all">Selecionar tudo</string>
     <string name="select_none">Limpar seleção</string>

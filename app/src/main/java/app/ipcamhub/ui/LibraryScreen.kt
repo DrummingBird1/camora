@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import app.ipcamhub.core.Hub
 import app.ipcamhub.core.RecordingFormat
+import app.ipcamhub.core.RecordingItem
 import app.ipcamhub.core.RecordingStorage
 import app.ipcamhub.core.StorageOption
 import kotlinx.coroutines.Dispatchers
@@ -48,17 +49,17 @@ import java.util.Date
 
 /** Copies a recording to Movies/Camora in the shared gallery under [name]. Android 10 and newer. */
 @androidx.annotation.RequiresApi(29)
-private fun saveToGallery(context: android.content.Context, file: File, name: String): Boolean {
+private fun saveToGallery(context: android.content.Context, file: RecordingItem, name: String): Boolean {
     val resolver = context.contentResolver
     val values = android.content.ContentValues().apply {
         put(android.provider.MediaStore.Video.Media.DISPLAY_NAME, name)
-        put(android.provider.MediaStore.Video.Media.MIME_TYPE, RecordingFormat.mimeOf(file))
+        put(android.provider.MediaStore.Video.Media.MIME_TYPE, RecordingFormat.mimeOf(file.name))
         put(android.provider.MediaStore.Video.Media.RELATIVE_PATH, "Movies/Camora")
         put(android.provider.MediaStore.Video.Media.IS_PENDING, 1)
     }
     val uri = resolver.insert(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values) ?: return false
     return try {
-        resolver.openOutputStream(uri)?.use { out -> file.inputStream().use { it.copyTo(out, 1 shl 20) } } ?: error("no stream")
+        resolver.openOutputStream(uri)?.use { out -> RecordingStorage.openInput(context, file).use { it.copyTo(out, 1 shl 20) } } ?: error("no stream")
         values.clear()
         values.put(android.provider.MediaStore.Video.Media.IS_PENDING, 0)
         resolver.update(uri, values, null, null)
@@ -86,19 +87,20 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
     val active = remember(version, recording) { Hub.activeRecordingFiles() }
     val fmt = remember { DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM) }
 
-    fun uriOf(f: File): Uri = FileProvider.getUriForFile(context, "${context.packageName}.files", f)
+    // Files go out through the FileProvider; recordings in a picked folder already have a content address.
+    fun uriOf(f: RecordingItem): Uri = f.file?.let { FileProvider.getUriForFile(context, "${context.packageName}.files", it) } ?: f.uri
 
-    var playing by remember { mutableStateOf<File?>(null) }
+    var playing by remember { mutableStateOf<RecordingItem?>(null) }
     var selecting by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(setOf<String>()) }
-    var confirmDelete by remember { mutableStateOf<List<File>?>(null) }
-    var toSave by remember { mutableStateOf<File?>(null) }
-    var moveChoice by remember { mutableStateOf<List<File>?>(null) }
+    var confirmDelete by remember { mutableStateOf<List<RecordingItem>?>(null) }
+    var toSave by remember { mutableStateOf<RecordingItem?>(null) }
+    var moveChoice by remember { mutableStateOf<List<RecordingItem>?>(null) }
     var busy by remember { mutableStateOf<String?>(null) }
 
     // Files being recorded cannot be selected.
-    val selectable = files.filter { it.absolutePath !in active }.map { it.absolutePath }.toSet()
-    val selectedFiles = files.filter { it.absolutePath in selected && it.absolutePath in selectable }
+    val selectable = files.filter { it.key !in active }.map { it.key }.toSet()
+    val selectedFiles = files.filter { it.key in selected && it.key in selectable }
     fun endSelection() {
         selecting = false
         selected = emptySet()
@@ -128,7 +130,7 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
             if (list.size == 1) Strings.get(R.string.confirm_delete_recording, list[0].name)
             else Strings.get(R.string.confirm_delete_recordings, list.size),
             onConfirm = {
-                list.forEach { it.delete() }
+                list.forEach { RecordingStorage.delete(context, it) }
                 endSelection()
                 version++
             },
@@ -157,14 +159,14 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
                 moveChoice = null
                 endSelection()
                 runBusy(Strings.get(R.string.moving_recordings, list.size)) {
-                    val failed = list.count { RecordingStorage.move(it, target.dir) == null }
+                    val failed = list.count { !RecordingStorage.move(context, it, target) }
                     if (failed == 0) Strings.get(R.string.moved_to, target.label) else Strings.get(R.string.move_failed, failed)
                 }
             },
         )
     }
     playing?.let { file ->
-        PlayerScreen(file) { playing = null }
+        PlayerScreen(file.uri) { playing = null }
         return
     }
 
@@ -219,12 +221,12 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
             }
         }
         if (files.isEmpty()) item { Text(Strings.get(R.string.no_recordings)) }
-        items(files, key = { it.absolutePath }) { f ->
-            val isActive = f.absolutePath in active
-            val isSelected = f.absolutePath in selected && !isActive
+        items(files, key = { it.key }) { f ->
+            val isActive = f.key in active
+            val isSelected = f.key in selected && !isActive
             fun toggle() {
                 if (isActive) return
-                selected = if (isSelected) selected - f.absolutePath else selected + f.absolutePath
+                selected = if (isSelected) selected - f.key else selected + f.key
             }
             Card(
                 Modifier.fillMaxWidth().combinedClickable(
@@ -247,7 +249,7 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
                         )
                         val where = if (storages.size > 1) RecordingStorage.optionOf(context, f)?.label?.let { "  ·  $it" } ?: "" else ""
                         Text(
-                            "${"%.1f".format(f.length() / 1024.0 / 1024.0)} MB  ·  ${fmt.format(Date(f.lastModified()))}$where",
+                            "${"%.1f".format(f.sizeBytes / 1024.0 / 1024.0)} MB  ·  ${fmt.format(Date(f.modifiedMs))}$where",
                             // Numbers and units: keep their order in a right-to-left layout.
                             style = androidx.compose.ui.text.TextStyle(textDirection = androidx.compose.ui.text.style.TextDirection.Ltr)
                         )
@@ -261,7 +263,7 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
                                 TextButton(onClick = {
                                     context.startActivity(
                                         Intent.createChooser(
-                                            Intent(Intent.ACTION_SEND).setType(RecordingFormat.mimeOf(f))
+                                            Intent(Intent.ACTION_SEND).setType(RecordingFormat.mimeOf(f.name))
                                                 .putExtra(Intent.EXTRA_STREAM, uriOf(f))
                                                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),
                                             null
@@ -326,7 +328,7 @@ private fun MoveDialog(storages: List<StorageOption>, onDismiss: () -> Unit, onM
             Column {
                 storages.forEach { s ->
                     TextButton(onClick = { onMove(s) }, modifier = Modifier.fillMaxWidth()) {
-                        Text("${s.label}  (‎${"%.1f".format(java.util.Locale.US, s.freeBytes / 1e9)} GB)")
+                        Text(s.label + (s.freeBytes?.let { "  (‎${"%.1f".format(java.util.Locale.US, it / 1e9)} GB)" } ?: ""))
                     }
                 }
             }

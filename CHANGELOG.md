@@ -13,7 +13,7 @@
 - Recording stops on low battery (limit of your choice, only when not charging), when the phone gets too
   hot, or when storage runs low, with a notification.
 - Record in MP4, MKV or TS; MKV and TS keep what was recorded if the phone switches off or the app is closed.
-- Save recordings to the phone, an SD card or a USB drive/SSD; move recordings between them.
+- Save recordings to the phone, an SD card, or a folder you choose on a USB drive or SSD; move recordings between them.
 - Select several recordings to share, save to the gallery, move or delete them together.
 - Storage management: cleanup by age or size, save to the gallery under a name of your choice.
 
