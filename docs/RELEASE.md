@@ -24,7 +24,7 @@ debug key (fine for sideloading, rejected by Play).
 
 ## 2. Version
 
-Raise `versionCode` (every upload) and `versionName` in `app/build.gradle.kts`.
+Raise `versionCode` (every upload) and `versionName` in `app/build.gradle.kts`. `versionCode` follows the version: major × 10000 + minor × 100 + patch (1.0.0 = 10000, 1.2.3 = 10203).
 
 ## 3. Build
 

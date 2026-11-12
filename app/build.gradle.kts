@@ -20,8 +20,9 @@ android {
         applicationId = "app.ipcamhub"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.4.0"
+        // versionCode = major * 10000 + minor * 100 + patch (1.0.0 = 10000). Play needs it higher on every upload.
+        versionCode = 10000
+        versionName = "1.0.0"
         ndk {
             // The UVC library ships native code for four ABIs. Keep real phones and the emulator.
             abiFilters += listOf("arm64-v8a", "x86_64")

@@ -44,7 +44,7 @@ body:
     id: version
     attributes:
       label: Camora version
-      placeholder: 0.3.0
+      placeholder: 1.0.0
   - type: textarea
     id: extra
     attributes:
