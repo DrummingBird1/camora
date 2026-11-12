@@ -10,7 +10,7 @@ nanohttpd = "2.3.1"
 uvcAndroid = "1.0.13"
 junit = "4.13.2"
 lifecycle = "2.9.4"
-playServicesCast = "22.2.0"
+playServicesCast = "23.0.0"
 splashscreen = "1.0.1"
 zxing = "3.5.3"
 
