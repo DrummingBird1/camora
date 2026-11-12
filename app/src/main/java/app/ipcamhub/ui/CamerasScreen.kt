@@ -158,6 +158,7 @@ private fun CameraTile(cam: CameraConfig, repo: CameraRepository, onOpen: () -> 
     val isRecording = cam.id in recording
     val viewerCount = viewers[cam.id] ?: 0
     var showSettings by remember { mutableStateOf(false) }
+    var soundOn by remember(cam.id) { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
     if (confirmDelete) {
         ConfirmDeleteDialog(
@@ -190,7 +191,7 @@ private fun CameraTile(cam: CameraConfig, repo: CameraRepository, onOpen: () -> 
                 .clip(RoundedCornerShape(12.dp))
                 .clickable(onClick = onOpen)
         ) {
-            SourceView(cam, Modifier.fillMaxSize(), showFps = true) { Hub.reportMotion(cam, it) }
+            SourceView(cam, Modifier.fillMaxSize(), sound = soundOn, showFps = true) { Hub.reportMotion(cam, it) }
             Row(Modifier.padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (isRecording) RecordingBadge(recordingSince[cam.id])
                 if (motionShown) Badge(Strings.get(R.string.badge_motion), Color(0xFFF57C00))
@@ -203,6 +204,16 @@ private fun CameraTile(cam: CameraConfig, repo: CameraRepository, onOpen: () -> 
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.weight(1f)
             )
+            // The demo has no sound in the preview; a camera with sound turned off in its settings neither.
+            if (cam.type != SourceType.DEMO && cam.audio) {
+                IconButton(onClick = { soundOn = !soundOn }) {
+                    Icon(
+                        androidx.compose.ui.res.painterResource(if (soundOn) R.drawable.ic_volume_on else R.drawable.ic_volume_off),
+                        contentDescription = Strings.get(if (soundOn) R.string.sound_off else R.string.sound_on),
+                        tint = if (soundOn) MaterialTheme.colorScheme.primary else androidx.compose.material3.LocalContentColor.current
+                    )
+                }
+            }
             IconButton(onClick = { showSettings = true }) {
                 Icon(Icons.Default.Settings, contentDescription = Strings.get(R.string.camera_settings))
             }

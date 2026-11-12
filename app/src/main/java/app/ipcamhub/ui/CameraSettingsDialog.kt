@@ -36,12 +36,12 @@ fun CameraSettingsDialog(
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(Strings.get(R.string.recording_and_stream), style = MaterialTheme.typography.titleSmall)
-                ChipChoice(
+                SliderChoice(
                     Strings.get(R.string.max_resolution),
-                    listOf(Strings.get(R.string.original) to 0, "4K" to 2160, "1080p" to 1080, "720p" to 720, "480p" to 480),
+                    listOf("480p" to 480, "720p" to 720, "1080p" to 1080, "4K" to 2160, Strings.get(R.string.original) to 0),
                     cam.maxHeight
                 ) { onChange(cam.copy(maxHeight = it)) }
-                ChipChoice(
+                SliderChoice(
                     Strings.get(R.string.quality_bitrate),
                     listOf(
                         Strings.get(R.string.low) to 0, Strings.get(R.string.medium) to 1,
@@ -73,7 +73,7 @@ fun CameraSettingsDialog(
                 }
 
                 Text(Strings.get(R.string.motion_detection), style = MaterialTheme.typography.titleSmall)
-                ChipChoice(
+                SliderChoice(
                     Strings.get(R.string.sensitivity),
                     listOf(Strings.get(R.string.low) to 0, Strings.get(R.string.medium) to 1, Strings.get(R.string.high) to 2),
                     cam.sensitivity

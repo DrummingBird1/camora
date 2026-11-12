@@ -223,11 +223,8 @@ class UvcEncodeSource(
             encoder = e
             UvcManager.addSurface(e.inputSurface)
             if (audioDevice != null) {
-                try {
-                    audioSource = UvcAudioSource(audioDevice, sink).also { it.start() }
-                } catch (ex: Exception) {
-                    android.util.Log.w("UvcEncodeSource", "audio capture failed", ex)
-                }
+                val a = UvcAudioSource(context, sink)
+                if (a.start()) audioSource = a else android.util.Log.w("UvcEncodeSource", "audio capture failed")
             }
         }
     }

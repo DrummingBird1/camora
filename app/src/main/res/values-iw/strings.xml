@@ -194,6 +194,9 @@
     <string name="privacy_policy">מדיניות פרטיות</string>
     <string name="support_project">תמיכה בפרויקט</string>
     <string name="support_text">Camora חינמית. אם היא עוזרת לך, אפשר לתמוך בפיתוח:</string>
+    <string name="sound_on">הפעלת קול</string>
+    <string name="sound_off">השתקה</string>
+    <string name="file_name">שם הקובץ</string>
     <string name="shortcut_record">הקלט הכל</string>
     <string name="shortcut_record_long">הקלטה של כל המקורות</string>
     <string name="shortcut_stop">עצור הקלטה</string>

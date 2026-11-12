@@ -194,6 +194,9 @@
     <string name="privacy_policy">Privacy policy</string>
     <string name="support_project">Support the project</string>
     <string name="support_text">Camora is free. If it is useful to you, you can support its development:</string>
+    <string name="sound_on">Turn sound on</string>
+    <string name="sound_off">Turn sound off</string>
+    <string name="file_name">File name</string>
     <string name="shortcut_record">Record all</string>
     <string name="shortcut_record_long">Record all sources</string>
     <string name="shortcut_stop">Stop recording</string>

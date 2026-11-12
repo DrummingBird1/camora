@@ -30,13 +30,14 @@ import app.ipcamhub.core.Hub
 import java.io.File
 import java.text.DateFormat
 import java.util.Date
+import kotlinx.coroutines.launch
 
 /** Copies a recording to Movies/Camora in the shared gallery. Android 10 and newer. */
 @androidx.annotation.RequiresApi(29)
-private fun saveToGallery(context: android.content.Context, file: File): Boolean {
+private fun saveToGallery(context: android.content.Context, file: File, name: String): Boolean {
     val resolver = context.contentResolver
     val values = android.content.ContentValues().apply {
-        put(android.provider.MediaStore.Video.Media.DISPLAY_NAME, file.name)
+        put(android.provider.MediaStore.Video.Media.DISPLAY_NAME, name)
         put(android.provider.MediaStore.Video.Media.MIME_TYPE, "video/mp4")
         put(android.provider.MediaStore.Video.Media.RELATIVE_PATH, "Movies/Camora")
         put(android.provider.MediaStore.Video.Media.IS_PENDING, 1)
@@ -69,6 +70,26 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
 
     var playing by remember { mutableStateOf<File?>(null) }
     var toDelete by remember { mutableStateOf<File?>(null) }
+    var toSave by remember { mutableStateOf<File?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    toSave?.let { f ->
+        GalleryNameDialog(
+            initial = f.nameWithoutExtension,
+            onDismiss = { toSave = null },
+            onSave = { name ->
+                toSave = null
+                scope.launch {
+                    // Copying a long recording takes a while; keep it off the main thread.
+                    val ok = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        android.os.Build.VERSION.SDK_INT >= 29 && saveToGallery(context, f, "$name.mp4")
+                    }
+                    android.widget.Toast.makeText(
+                        context, Strings.get(if (ok) R.string.saved_to_gallery else R.string.save_failed), android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            },
+        )
+    }
     toDelete?.let { f ->
         ConfirmDeleteDialog(
             Strings.get(R.string.confirm_delete_recording, f.name),
@@ -109,12 +130,7 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
                             )
                         }) { Text(Strings.get(R.string.share)) }
                         // Recordings live in the app's own folder and go away with the app; this keeps a copy.
-                        if (android.os.Build.VERSION.SDK_INT >= 29) TextButton(onClick = {
-                            val ok = saveToGallery(context, f)
-                            android.widget.Toast.makeText(
-                                context, Strings.get(if (ok) R.string.saved_to_gallery else R.string.save_failed), android.widget.Toast.LENGTH_SHORT
-                            ).show()
-                        }) { Text(Strings.get(R.string.save_to_gallery)) }
+                        if (android.os.Build.VERSION.SDK_INT >= 29) TextButton(onClick = { toSave = f }) { Text(Strings.get(R.string.save_to_gallery)) }
                         TextButton(onClick = { toDelete = f }) { Text(Strings.get(R.string.delete)) }
                     }
                 }
@@ -131,4 +147,28 @@ fun LibraryScreen(modifier: Modifier = Modifier) {
             Text("${fmt.format(Date(e.timeMs))}  ·  ${e.cameraName}  ·  ${(e.score * 100).toInt()}%")
         }
     }
+}
+
+/** Asks for the name the recording gets in the gallery (without ".mp4"). */
+@Composable
+private fun GalleryNameDialog(initial: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
+    var name by remember { mutableStateOf(initial) }
+    // Characters that file systems or the gallery reject.
+    val clean = name.replace(Regex("[\\\\/:*?\"<>|]"), "_").trim().trimEnd('.')
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(Strings.get(R.string.save_to_gallery)) },
+        text = {
+            androidx.compose.material3.OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(Strings.get(R.string.file_name)) },
+                singleLine = true,
+                // The left-to-right mark keeps the dot before "mp4" in a right-to-left layout.
+                suffix = { Text("\u200E.mp4") },
+            )
+        },
+        confirmButton = { TextButton(enabled = clean.isNotEmpty(), onClick = { onSave(clean) }) { Text(Strings.get(R.string.save)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(Strings.get(R.string.cancel)) } },
+    )
 }

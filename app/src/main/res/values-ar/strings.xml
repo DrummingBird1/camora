@@ -194,6 +194,9 @@
     <string name="privacy_policy">سياسة الخصوصية</string>
     <string name="support_project">ادعم المشروع</string>
     <string name="support_text">Camora مجاني. إن كان مفيدًا لك يمكنك دعم تطويره:</string>
+    <string name="sound_on">تشغيل الصوت</string>
+    <string name="sound_off">كتم الصوت</string>
+    <string name="file_name">اسم الملف</string>
     <string name="shortcut_record">سجّل الكل</string>
     <string name="shortcut_record_long">تسجيل كل المصادر</string>
     <string name="shortcut_stop">إيقاف التسجيل</string>

@@ -194,6 +194,9 @@
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="support_project">Поддержать проект</string>
     <string name="support_text">Camora бесплатна. Если она вам полезна, можно поддержать разработку:</string>
+    <string name="sound_on">Включить звук</string>
+    <string name="sound_off">Выключить звук</string>
+    <string name="file_name">Имя файла</string>
     <string name="shortcut_record">Записать все</string>
     <string name="shortcut_record_long">Записать все источники</string>
     <string name="shortcut_stop">Стоп запись</string>

@@ -202,6 +202,10 @@ module.exports = {
     ['privacy_policy', 'Privacy policy', 'מדיניות פרטיות', 'سياسة الخصوصية', 'Политика конфиденциальности', 'Política de privacidad', 'Politique de confidentialité', 'Datenschutzerklärung', 'Política de privacidade'],
     ['support_project', 'Support the project', 'תמיכה בפרויקט', 'ادعم المشروع', 'Поддержать проект', 'Apoya el proyecto', 'Soutenir le projet', 'Projekt unterstützen', 'Apoie o projeto'],
     ['support_text', 'Camora is free. If it is useful to you, you can support its development:', 'Camora חינמית. אם היא עוזרת לך, אפשר לתמוך בפיתוח:', 'Camora مجاني. إن كان مفيدًا لك يمكنك دعم تطويره:', 'Camora бесплатна. Если она вам полезна, можно поддержать разработку:', 'Camora es gratuita. Si te resulta útil, puedes apoyar su desarrollo:', 'Camora est gratuite. Si elle vous est utile, vous pouvez soutenir son développement :', 'Camora ist kostenlos. Wenn sie dir hilft, kannst du die Entwicklung unterstützen:', 'O Camora é gratuito. Se for útil para você, apoie o desenvolvimento:'],
+    // Sound on the phone, gallery name
+    ['sound_on', 'Turn sound on', 'הפעלת קול', 'تشغيل الصوت', 'Включить звук', 'Activar sonido', 'Activer le son', 'Ton einschalten', 'Ativar som'],
+    ['sound_off', 'Turn sound off', 'השתקה', 'كتم الصوت', 'Выключить звук', 'Silenciar', 'Couper le son', 'Ton ausschalten', 'Silenciar'],
+    ['file_name', 'File name', 'שם הקובץ', 'اسم الملف', 'Имя файла', 'Nombre del archivo', 'Nom du fichier', 'Dateiname', 'Nome do arquivo'],
     // Shortcuts, quick settings tile, QR code
     ['shortcut_record', 'Record all', 'הקלט הכל', 'سجّل الكل', 'Записать все', 'Grabar todo', 'Tout enregistrer', 'Alle aufnehmen', 'Gravar tudo'],
     ['shortcut_record_long', 'Record all sources', 'הקלטה של כל המקורות', 'تسجيل كل المصادر', 'Записать все источники', 'Grabar todas las fuentes', 'Enregistrer toutes les sources', 'Alle Quellen aufnehmen', 'Gravar todas as fontes'],

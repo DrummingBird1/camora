@@ -88,11 +88,14 @@ fun SourceView(
             }
         }
     } else if (cam.type == SourceType.RTSP) {
-        DisposableEffect(cam.id, cam.url, sound) {
+        // Sound is only a volume change, so switching it never reconnects the camera.
+        var rtspPlayer by remember(cam.id) { mutableStateOf<androidx.media3.common.Player?>(null) }
+        LaunchedEffect(rtspPlayer, sound, cam.audio) { rtspPlayer?.volume = if (sound && cam.audio) 1f else 0f }
+        DisposableEffect(cam.id, cam.url) {
             var rendered = false
             var frames = 0
             var windowStartNs = System.nanoTime()
-            val player = PlayerFactory.createRtsp(context, cam.url, RtspOptions(muted = !sound, tcp = cam.tcp), onError = { err ->
+            val player = PlayerFactory.createRtsp(context, cam.url, RtspOptions(muted = true, tcp = cam.tcp), onError = { err ->
                 if (err != null) {
                     rendered = false
                     status = Strings.get(R.string.error_with, err)
@@ -130,7 +133,11 @@ fun SourceView(
                 }
             }
             player.setVideoTextureView(tv)
-            onDispose { player.release() }
+            rtspPlayer = player
+            onDispose {
+                rtspPlayer = null
+                player.release()
+            }
         }
     } else {
         val uvc by UvcManager.state.collectAsState()
@@ -156,6 +163,11 @@ fun SourceView(
         LaunchedEffect(uvc) {
             status = if (uvc.opened) null else uvc.message
             if (uvc.opened && uvc.height > 0) ratio = uvc.width.toFloat() / uvc.height
+        }
+        // The card's sound on the phone speaker, while sound is on for this view.
+        DisposableEffect(cam.id, sound && cam.audio) {
+            val monitor = if (sound && cam.audio) app.ipcamhub.core.CardAudioMonitor(context).takeIf { it.start() } else null
+            onDispose { monitor?.stop() }
         }
         val measured by UvcManager.measuredFps.collectAsState()
         LaunchedEffect(measured, uvc.opened) { fps = if (uvc.opened) measured.toFloat() else 0f }

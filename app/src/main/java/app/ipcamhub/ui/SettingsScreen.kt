@@ -68,29 +68,30 @@ fun SettingsScreen(onOpenUsb: () -> Unit, onOpenLicenses: () -> Unit = {}, modif
         Text(Strings.get(R.string.tab_settings), style = MaterialTheme.typography.titleLarge)
 
         Text(Strings.get(R.string.recording), style = MaterialTheme.typography.titleMedium)
-        ChipChoice(
+        SliderChoice(
             Strings.get(R.string.keep_recording_after_motion),
             listOf(Strings.get(R.string.seconds_short, 10) to 10, Strings.get(R.string.seconds_short, 30) to 30, Strings.get(R.string.minute_one) to 60, Strings.get(R.string.minutes_two) to 120),
             settings.postMotionSeconds
         ) { v -> change { it.copy(postMotionSeconds = v) } }
-        ChipChoice(
+        // "Off" (keep forever) sits at the far end of the scale.
+        SliderChoice(
             Strings.get(R.string.delete_old_after),
-            listOf(Strings.get(R.string.off) to 0, Strings.get(R.string.days, 7) to 7, Strings.get(R.string.days, 14) to 14, Strings.get(R.string.days, 30) to 30),
+            listOf(Strings.get(R.string.days, 3) to 3, Strings.get(R.string.days, 7) to 7, Strings.get(R.string.days, 14) to 14, Strings.get(R.string.days, 30) to 30, Strings.get(R.string.days, 90) to 90, Strings.get(R.string.off) to 0),
             settings.retentionDays
         ) { v -> change { it.copy(retentionDays = v) } }
-        ChipChoice(
+        SliderChoice(
             Strings.get(R.string.storage_limit),
-            listOf(Strings.get(R.string.none) to 0, "\u200E2 GB" to 2048, "\u200E5 GB" to 5120, "\u200E10 GB" to 10240, "\u200E20 GB" to 20480),
+            listOf("\u200E1 GB" to 1024, "\u200E2 GB" to 2048, "\u200E5 GB" to 5120, "\u200E10 GB" to 10240, "\u200E20 GB" to 20480, "\u200E50 GB" to 51200, Strings.get(R.string.none) to 0),
             settings.maxStorageMb
         ) { v -> change { it.copy(maxStorageMb = v) } }
-        ChipChoice(
+        SliderChoice(
             Strings.get(R.string.stop_when_free_below),
             listOf("\u200E200 MB" to 200, "\u200E500 MB" to 500, "\u200E1 GB" to 1024, "\u200E2 GB" to 2048),
             settings.minFreeMb
         ) { v -> change { it.copy(minFreeMb = v) } }
-        ChipChoice(
+        SliderChoice(
             Strings.get(R.string.stop_when_battery_below),
-            listOf(Strings.get(R.string.off) to 0, "10%" to 10, "15%" to 15, "20%" to 20, "30%" to 30),
+            listOf(Strings.get(R.string.off) to 0, "5%" to 5, "10%" to 10, "15%" to 15, "20%" to 20, "25%" to 25, "30%" to 30, "40%" to 40, "50%" to 50),
             settings.lowBatteryStop
         ) { v -> change { it.copy(lowBatteryStop = v) } }
         Text(Strings.get(R.string.heat_note), style = MaterialTheme.typography.bodySmall)

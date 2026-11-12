@@ -4,4 +4,5 @@ First release.
 - Streaming to browsers, DLNA TVs and HLS players, up to 4K and H.265
 - Built-in demo, QR code for the stream, quick settings tile and shortcuts
 - Stops recording on low battery, heat or low storage
+- Listen to the camera or capture card on the phone
 - 8 languages
