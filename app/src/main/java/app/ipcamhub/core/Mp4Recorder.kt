@@ -8,7 +8,7 @@ import java.io.File
 import java.nio.ByteBuffer
 
 /** Writes the encoded stream (video, and AAC audio when the source has it) to an MP4 file. */
-class Mp4Recorder(val file: File) : EncodedSink {
+class Mp4Recorder(override val file: File) : Recorder {
 
     private class Pending(val data: ByteArray, val info: MediaCodec.BufferInfo, val audio: Boolean)
 

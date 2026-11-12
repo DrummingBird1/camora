@@ -185,14 +185,39 @@ object Hub {
 
     // ---- recording ----
 
-    fun recordingsDir(): File =
-        File(app.getExternalFilesDir(Environment.DIRECTORY_MOVIES), "IPCamHub").also { it.mkdirs() }
+    private var missingStorageNoticed = false
 
-    fun listRecordings(): List<File> =
-        recordingsDir().listFiles { f -> f.extension == "mp4" }?.sortedByDescending { it.lastModified() } ?: emptyList()
+    /** Where new recordings go: the chosen storage, or the phone when that storage is not connected. */
+    fun recordingsDir(): File {
+        val id = settings.storageId
+        if (id != RecordingStorage.PRIMARY) {
+            RecordingStorage.dirFor(app, id)?.let {
+                missingStorageNoticed = false
+                return it
+            }
+            if (!missingStorageNoticed) {
+                missingStorageNoticed = true
+                alert(Strings.get(R.string.storage_missing))
+            }
+        }
+        return RecordingStorage.primaryDir(app)
+    }
 
-    private fun hasFreeSpace(): Boolean =
-        recordingsDir().usableSpace >= settings.minFreeMb.toLong() * 1024 * 1024
+    /** Recordings on every connected storage, newest first. */
+    fun listRecordings(): List<File> = RecordingStorage.allRecordings(app)
+
+    /** Bytes the camera's encoders produced so far, or null when nothing is being encoded for it. */
+    fun encodedBytes(id: String): Long? = outputs[id]?.takeIf { it.source != null }?.mux?.bytesOut
+
+    /** Files being written right now; they must not be moved or deleted. */
+    fun activeRecordingFiles(): Set<String> = outputs.values.mapNotNull { it.currentFile?.absolutePath }.toSet()
+
+    /** Enough space where new recordings go and where the running ones are being written. */
+    private fun hasFreeSpace(): Boolean {
+        val min = settings.minFreeMb.toLong() * 1024 * 1024
+        val dirs = outputs.values.mapNotNull { it.currentFile?.parentFile } + recordingsDir()
+        return dirs.distinct().all { it.exists() && it.usableSpace >= min }
+    }
 
     private enum class Problem { STORAGE, BATTERY, HEAT }
 
@@ -270,9 +295,10 @@ object Hub {
         if (o.recording) return
         val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val safeName = cam.name.replace(Regex("[^\\p{L}\\p{N}_-]"), "_")
-        val file = File(recordingsDir(), "${safeName}_$stamp.mp4")
+        val format = RecordingFormat.of(settings.recordingFormat)
+        val file = File(recordingsDir(), "${safeName}_$stamp.${format.extension}")
         o.currentFile = file
-        o.mux.attachRecorder(Mp4Recorder(file))
+        o.mux.attachRecorder(newRecorder(format, file))
         o.recording = true
         _recording.value = _recording.value + cam.id
         _recordingSince.value = _recordingSince.value + (cam.id to System.currentTimeMillis())

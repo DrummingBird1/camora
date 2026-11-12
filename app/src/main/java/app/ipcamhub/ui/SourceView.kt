@@ -22,6 +22,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -49,10 +51,17 @@ fun SourceView(
     modifier: Modifier = Modifier,
     sound: Boolean = false,
     showFps: Boolean = false,
+    /** Crop the picture to fill the view instead of fitting it with black bars. */
+    fill: Boolean = false,
+    /** Gives the caller the view that shows the picture, for snapshots. */
+    onTextureView: (TextureView) -> Unit = {},
+    /** Frames per second shown, about once a second. */
+    onFps: (Float) -> Unit = {},
     onMotion: (Double) -> Unit = {},
 ) {
     val context = LocalContext.current
     val tv = remember(cam.id) { TextureView(context) }
+    LaunchedEffect(tv) { onTextureView(tv) }
     var status by remember(cam.id) { mutableStateOf<String?>(Strings.get(R.string.connecting)) }
     var ratio by remember(cam.id) { mutableFloatStateOf(16f / 9f) }
 
@@ -188,8 +197,18 @@ fun SourceView(
         }
     }
 
-    Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
-        AndroidView(factory = { tv }, modifier = Modifier.aspectRatio(ratio))
+    val fpsCallback by rememberUpdatedState(onFps)
+    LaunchedEffect(fps) { fpsCallback(fps) }
+    androidx.compose.foundation.layout.BoxWithConstraints(
+        modifier.background(Color.Black).clipToBounds(), contentAlignment = Alignment.Center
+    ) {
+        // Fill: scale the fitted picture up until no black bars remain (the edges are cropped).
+        val viewRatio = if (maxHeight.value > 0f) maxWidth.value / maxHeight.value else ratio
+        val scale = if (fill) maxOf(viewRatio / ratio, ratio / viewRatio) else 1f
+        AndroidView(
+            factory = { tv },
+            modifier = Modifier.aspectRatio(ratio).scale(scale)
+        )
         status?.let { Text(it, color = Color.White) }
         if (showFps && status == null && fps > 0f) {
             Text(

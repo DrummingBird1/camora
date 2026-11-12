@@ -2,10 +2,12 @@ package app.ipcamhub.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -27,6 +29,12 @@ data class AppSettings(
     val remoteAccess: Boolean = false,
     /** Stop recording when the battery drops to this percent and the phone is not charging. 0 = never. */
     val lowBatteryStop: Int = 15,
+    /** Container for new recordings: a RecordingFormat name (MP4, MKV, TS). */
+    val recordingFormat: String = "MP4",
+    /** Where new recordings go: a RecordingStorage id ("primary" = the phone). */
+    val storageId: String = "primary",
+    /** Show temperature, CPU, memory, frame rate and bitrate on the Cameras screen and in full screen. */
+    val showStats: Boolean = false,
 )
 
 private val Context.settingsStore: DataStore<Preferences> by preferencesDataStore("settings")
@@ -40,12 +48,21 @@ private object Keys {
     val https = booleanPreferencesKey("httpsEnabled")
     val remote = booleanPreferencesKey("remoteAccess")
     val lowBattery = intPreferencesKey("lowBatteryStop")
+    val format = stringPreferencesKey("recordingFormat")
+    val storage = stringPreferencesKey("storageId")
+    val stats = booleanPreferencesKey("showStats")
 }
 
 class SettingsRepository(private val context: Context) {
-    val settings: Flow<AppSettings> = context.settingsStore.data.map { p ->
+    val settings: Flow<AppSettings> = context.settingsStore.data.map { read(it) }
+
+    suspend fun update(change: (AppSettings) -> AppSettings) {
+        context.settingsStore.edit { p -> write(p, change(read(p))) }
+    }
+
+    private fun read(p: Preferences): AppSettings {
         val d = AppSettings()
-        AppSettings(
+        return AppSettings(
             postMotionSeconds = p[Keys.postMotion] ?: d.postMotionSeconds,
             retentionDays = p[Keys.retentionDays] ?: d.retentionDays,
             maxStorageMb = p[Keys.maxStorageMb] ?: d.maxStorageMb,
@@ -54,32 +71,23 @@ class SettingsRepository(private val context: Context) {
             httpsEnabled = p[Keys.https] ?: d.httpsEnabled,
             remoteAccess = p[Keys.remote] ?: d.remoteAccess,
             lowBatteryStop = p[Keys.lowBattery] ?: d.lowBatteryStop,
+            recordingFormat = p[Keys.format] ?: d.recordingFormat,
+            storageId = p[Keys.storage] ?: d.storageId,
+            showStats = p[Keys.stats] ?: d.showStats,
         )
     }
 
-    suspend fun update(change: (AppSettings) -> AppSettings) {
-        context.settingsStore.edit { p ->
-            val d = AppSettings()
-            val next = change(
-                AppSettings(
-                    p[Keys.postMotion] ?: d.postMotionSeconds,
-                    p[Keys.retentionDays] ?: d.retentionDays,
-                    p[Keys.maxStorageMb] ?: d.maxStorageMb,
-                    p[Keys.minFreeMb] ?: d.minFreeMb,
-                    p[Keys.background] ?: d.backgroundMonitoring,
-                    p[Keys.https] ?: d.httpsEnabled,
-                    p[Keys.remote] ?: d.remoteAccess,
-                    p[Keys.lowBattery] ?: d.lowBatteryStop,
-                )
-            )
-            p[Keys.postMotion] = next.postMotionSeconds
-            p[Keys.retentionDays] = next.retentionDays
-            p[Keys.maxStorageMb] = next.maxStorageMb
-            p[Keys.minFreeMb] = next.minFreeMb
-            p[Keys.background] = next.backgroundMonitoring
-            p[Keys.https] = next.httpsEnabled
-            p[Keys.remote] = next.remoteAccess
-            p[Keys.lowBattery] = next.lowBatteryStop
-        }
+    private fun write(p: MutablePreferences, s: AppSettings) {
+        p[Keys.postMotion] = s.postMotionSeconds
+        p[Keys.retentionDays] = s.retentionDays
+        p[Keys.maxStorageMb] = s.maxStorageMb
+        p[Keys.minFreeMb] = s.minFreeMb
+        p[Keys.background] = s.backgroundMonitoring
+        p[Keys.https] = s.httpsEnabled
+        p[Keys.remote] = s.remoteAccess
+        p[Keys.lowBattery] = s.lowBatteryStop
+        p[Keys.format] = s.recordingFormat
+        p[Keys.storage] = s.storageId
+        p[Keys.stats] = s.showStats
     }
 }

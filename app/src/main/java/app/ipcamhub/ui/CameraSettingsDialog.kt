@@ -85,9 +85,9 @@ fun CameraSettingsDialog(
                     if (uvcModes.isEmpty()) {
                         Text(Strings.get(R.string.connect_card_for_modes), style = MaterialTheme.typography.bodySmall)
                     } else {
-                        ChipChoice(
+                        DropdownChoice(
                             Strings.get(R.string.resolution_and_fps),
-                            listOf(Strings.get(R.string.automatic) to "") + uvcModes.map { it to it },
+                            listOf(Strings.get(R.string.automatic) to "") + uvcModes.map { it.replace("@", " @ ") + " fps" to it },
                             cam.uvcSize
                         ) { onChange(cam.copy(uvcSize = it)) }
                         Text(Strings.get(R.string.mode_restarts_card), style = MaterialTheme.typography.bodySmall)

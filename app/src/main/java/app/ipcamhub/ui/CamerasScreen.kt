@@ -78,15 +78,14 @@ fun CamerasScreen(repo: CameraRepository) {
     val fullscreen = cameras.firstOrNull { it.id == fullscreenId }
     if (fullscreen != null) {
         ImmersiveWhileShown()
-        Box(Modifier.fillMaxSize().background(Color.Black)) {
-            SourceView(fullscreen, Modifier.fillMaxSize(), sound = true) { Hub.reportMotion(fullscreen, it) }
-            IconButton(onClick = { fullscreenId = null }, modifier = Modifier.align(Alignment.TopEnd)) {
-                Icon(Icons.Default.Close, contentDescription = Strings.get(R.string.close), tint = Color.White)
-            }
-        }
+        androidx.activity.compose.BackHandler { fullscreenId = null }
+        FullscreenView(fullscreen, repo) { fullscreenId = null }
         return
     }
+    val settings by Hub.settingsRepo.settings.collectAsState(initial = Hub.settings)
 
+    Column(Modifier.fillMaxSize()) {
+    if (settings.showStats) StatsBar(Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp))
     Box(Modifier.fillMaxSize()) {
         if (loaded != null && cameras.isEmpty()) {
             WelcomeCard(
@@ -114,6 +113,7 @@ fun CamerasScreen(repo: CameraRepository) {
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
         ) { Icon(Icons.Default.Add, contentDescription = Strings.get(R.string.add)) }
     }
+    }
 
     if (showAdd) {
         AddCameraDialog(
@@ -135,11 +135,22 @@ private fun ImmersiveWhileShown() {
         val window = activity?.window
         val controller = window?.let { androidx.core.view.WindowCompat.getInsetsController(it, it.decorView) }
         window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // Use the whole screen, including the strip beside the front camera.
+        // The cutout mode exists from Android 9; older phones have no cutout to use.
+        val cutoutBefore = if (android.os.Build.VERSION.SDK_INT >= 28) window?.attributes?.layoutInDisplayCutoutMode else null
+        if (window != null && android.os.Build.VERSION.SDK_INT >= 28) {
+            window.attributes = window.attributes.also {
+                it.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
         UiState.fullscreen.value = true
         controller?.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         controller?.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
         onDispose {
             window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            if (window != null && cutoutBefore != null && android.os.Build.VERSION.SDK_INT >= 28) {
+                window.attributes = window.attributes.also { it.layoutInDisplayCutoutMode = cutoutBefore }
+            }
             UiState.fullscreen.value = false
             controller?.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
         }
@@ -260,7 +271,7 @@ private fun CameraTile(cam: CameraConfig, repo: CameraRepository, onOpen: () -> 
 
 /** A pulsing red dot with the recording time, for example "● REC 02:15". */
 @Composable
-private fun RecordingBadge(since: Long?) {
+internal fun RecordingBadge(since: Long?) {
     var now by remember { mutableStateOf(System.currentTimeMillis()) }
     LaunchedEffect(since) {
         while (true) {

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <external-files-path name="recordings" path="." />
+    <!-- Recordings on an SD card or USB drive live outside the primary storage. -->
+    <root-path name="volumes" path="storage/" />
     <cache-path name="feedback" path="feedback/" />
 </paths>

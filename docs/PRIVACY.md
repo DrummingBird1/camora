@@ -18,7 +18,7 @@ devices you choose to stream to.
 | Microphone permission | A capture card's sound arrives as a USB audio input, read through the microphone API. The phone's own microphone is not recorded on purpose. |
 | Local network | To connect to your IP cameras, find TVs and Chromecast devices, and serve the stream to devices on your network. |
 | Notifications | To show that the app is recording, streaming or watching for motion, and to report detected motion. |
-| Storage (app folder) | Recordings are saved in the app's own folder. "Save to gallery" copies a recording to your Movies folder only when you ask. |
+| Storage (app folder) | Recordings are saved in the app's own folder on the storage you choose (the phone, an SD card or a USB drive). "Save to gallery" copies a recording to your Movies folder, and a snapshot goes to Pictures/Camora, only when you ask. |
 
 ## Data stored on the phone
 
@@ -63,7 +63,7 @@ Camora מציגה, מקליטה ומשדרת וידאו מהמצלמות שלך 
 - **הרשאת מיקרופון:** הקול של כרטיס הלכידה מגיע ככניסת שמע ב-USB ונקרא דרך ממשק המיקרופון. המיקרופון של הטלפון לא מוקלט במכוון.
 - **רשת מקומית:** חיבור למצלמות, איתור טלוויזיות ו-Chromecast, והגשת השידור למכשירים ברשת שלך.
 - **התראות:** הצגה שהאפליקציה מקליטה, משדרת או מנטרת תנועה, ודיווח על תנועה.
-- **אחסון:** ההקלטות נשמרות בתיקייה של האפליקציה. "שמור בגלריה" מעתיק הקלטה לתיקיית הסרטים רק כשמבקשים.
+- **אחסון:** ההקלטות נשמרות בתיקייה של האפליקציה באמצעי האחסון שבחרת (הטלפון, כרטיס SD או כונן USB). "שמור בגלריה" מעתיק הקלטה לתיקיית הסרטים, וצילום תמונה נשמר ב-Pictures/Camora, רק כשמבקשים.
 
 ## מה נשמר בטלפון
 

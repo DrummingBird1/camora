@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +54,49 @@ fun <T> SliderChoice(
             Text(options.first().first, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.weight(1f))
             Text(options.last().first, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/** A single choice from a long list (for example the capture card's modes), as a drop-down menu. */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun <T> DropdownChoice(
+    title: String,
+    options: List<Pair<String, T>>,
+    selected: T,
+    modifier: Modifier = Modifier,
+    onSelect: (T) -> Unit,
+) {
+    var expanded by remember { androidx.compose.runtime.mutableStateOf(false) }
+    val current = options.firstOrNull { it.second == selected }?.first ?: options.firstOrNull()?.first.orEmpty()
+    androidx.compose.material3.ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier
+    ) {
+        androidx.compose.material3.OutlinedTextField(
+            value = current,
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text(title) },
+            trailingIcon = { androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            modifier = Modifier
+                .menuAnchor(androidx.compose.material3.ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { (label, value) ->
+                androidx.compose.material3.DropdownMenuItem(
+                    text = { Text(label) },
+                    onClick = {
+                        expanded = false
+                        onSelect(value)
+                    },
+                    trailingIcon = if (value == selected) ({ androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Default.Check, null) }) else null
+                )
+            }
         }
     }
 }

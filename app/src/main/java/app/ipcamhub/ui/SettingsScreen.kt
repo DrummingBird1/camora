@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.draw.clip
@@ -68,6 +69,13 @@ fun SettingsScreen(onOpenUsb: () -> Unit, onOpenLicenses: () -> Unit = {}, modif
         Text(Strings.get(R.string.tab_settings), style = MaterialTheme.typography.titleLarge)
 
         Text(Strings.get(R.string.recording), style = MaterialTheme.typography.titleMedium)
+        ChipChoice(
+            Strings.get(R.string.recording_format),
+            listOf("MP4" to "MP4", "MKV" to "MKV", "TS" to "TS"),
+            settings.recordingFormat
+        ) { v -> change { it.copy(recordingFormat = v) } }
+        Text(Strings.get(R.string.recording_format_note), style = MaterialTheme.typography.bodySmall)
+        StorageChoice(settings.storageId) { id -> change { it.copy(storageId = id) } }
         SliderChoice(
             Strings.get(R.string.keep_recording_after_motion),
             listOf(Strings.get(R.string.seconds_short, 10) to 10, Strings.get(R.string.seconds_short, 30) to 30, Strings.get(R.string.minute_one) to 60, Strings.get(R.string.minutes_two) to 120),
@@ -141,12 +149,60 @@ fun SettingsScreen(onOpenUsb: () -> Unit, onOpenLicenses: () -> Unit = {}, modif
 
         HorizontalDivider()
         Text(Strings.get(R.string.tools), style = MaterialTheme.typography.titleMedium)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(Strings.get(R.string.show_stats))
+                Text(Strings.get(R.string.show_stats_desc), style = MaterialTheme.typography.bodySmall)
+            }
+            Switch(checked = settings.showStats, onCheckedChange = { v -> change { it.copy(showStats = v) } })
+        }
         TextButton(onClick = onOpenUsb) { Text(Strings.get(R.string.usb_diagnostics)) }
 
         HorizontalDivider()
         AboutSection(onOpenLicenses)
     }
 }
+
+/** Where new recordings are saved: every connected storage with its free space. Checked again on return to the app. */
+@Composable
+private fun StorageChoice(selected: String, onSelect: (String) -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var options by remember { mutableStateOf(app.ipcamhub.core.RecordingStorage.options(context)) }
+    // A card or drive plugged in while the app is open shows up when the screen is shown again.
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    androidx.compose.runtime.DisposableEffect(lifecycle) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) options = app.ipcamhub.core.RecordingStorage.options(context)
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(Strings.get(R.string.save_recordings_to), style = MaterialTheme.typography.labelLarge)
+        options.forEach { o ->
+            Row(
+                Modifier.fillMaxWidth().clickable { onSelect(o.id) },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                androidx.compose.material3.RadioButton(selected = o.id == selected, onClick = { onSelect(o.id) })
+                Column(Modifier.weight(1f)) {
+                    Text(o.label)
+                    Text(
+                        Strings.get(R.string.storage_free, "‎" + gb(o.freeBytes), "‎" + gb(o.totalBytes)),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+        if (options.none { it.id == selected }) {
+            Text(Strings.get(R.string.storage_missing), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        }
+        if (options.size == 1) Text(Strings.get(R.string.storage_hint), style = MaterialTheme.typography.bodySmall)
+        else Text(Strings.get(R.string.storage_uninstall_note), style = MaterialTheme.typography.bodySmall)
+    }
+}
+
+private fun gb(bytes: Long): String = "%.1f GB".format(java.util.Locale.US, bytes / 1e9)
 
 /** Version, links to the website, source and donation pages, the privacy policy, and feedback. */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)

@@ -160,6 +160,9 @@ private fun AppRoot() {
     }
     BackHandler(enabled = showUsb || showLicenses) { showUsb = false; showLicenses = false }
     Scaffold(
+        // Full screen uses the whole display, with no room kept for system bars or the camera cutout.
+        contentWindowInsets = if (fullscreen) androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0)
+        else androidx.compose.material3.ScaffoldDefaults.contentWindowInsets,
         snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             if (!fullscreen) NavigationBar {

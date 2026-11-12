@@ -10,7 +10,7 @@ import java.nio.ByteBuffer
 /** Fans the encoder output out to an optional recorder and the live stream. */
 class Mux(private val live: LiveStream) : EncodedSink {
     @Volatile
-    private var recorder: Mp4Recorder? = null
+    private var recorder: Recorder? = null
 
     @Volatile
     private var format: MediaFormat? = null
@@ -24,9 +24,14 @@ class Mux(private val live: LiveStream) : EncodedSink {
     @Volatile
     private var recorderWaitingForKey = false
 
+    /** Bytes the encoders produced so far (video and sound), for the bitrate readout. */
+    @Volatile
+    var bytesOut = 0L
+        private set
+
     /** Starts writing to [r]. The file begins at the next key frame. */
     @Synchronized
-    fun attachRecorder(r: Mp4Recorder) {
+    fun attachRecorder(r: Recorder) {
         r.onTracks(hasAudio)
         format?.let { r.onFormat(it) }
         audioFormat?.let { r.onAudioFormat(it) }
@@ -60,6 +65,7 @@ class Mux(private val live: LiveStream) : EncodedSink {
     }
 
     override fun onSample(data: ByteBuffer, info: MediaCodec.BufferInfo) {
+        bytesOut += info.size
         val r = recorder
         if (r != null) {
             val key = (info.flags and MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0
@@ -70,6 +76,7 @@ class Mux(private val live: LiveStream) : EncodedSink {
     }
 
     override fun onAudioSample(data: ByteBuffer, info: MediaCodec.BufferInfo) {
+        bytesOut += info.size
         val r = recorder
         if (r != null && !recorderWaitingForKey) r.onAudioSample(data.duplicate(), info)
         live.onAudioSample(data.duplicate(), info)
