@@ -95,7 +95,7 @@ fun SourceView(
             val player = PlayerFactory.createRtsp(context, cam.url, RtspOptions(muted = !sound, tcp = cam.tcp), onError = { err ->
                 if (err != null) {
                     rendered = false
-                    status = Strings.get(R.string.error_with, err.toString())
+                    status = Strings.get(R.string.error_with, err)
                 }
             })
             val listener = object : Player.Listener {

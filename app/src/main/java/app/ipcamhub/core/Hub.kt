@@ -472,7 +472,7 @@ object Hub {
             }
             val error = Upnp.addPortMapping(g, HTTPS_PORT, ip, HTTPS_PORT, "Camora")
             if (error != null) {
-                _remoteStatus.value = Strings.get(R.string.upnp_refused, error.toString())
+                _remoteStatus.value = Strings.get(R.string.upnp_refused, error)
                 return@launch
             }
             gateway = g

@@ -49,6 +49,27 @@ ffmpeg -i "http://<phone>:8080/hls/<camera-id>/index.m3u8?k=<key>" -t 12 -f null
 - **Picture quality:** extract a frame (`ffmpeg -ss 5 -i out.mp4 -frames:v 1 frame.png`) and look at it. The emulator can corrupt the picture when its hardware decoder feeds the encoder; check on a real phone.
 - **Heat/battery:** `adb shell dumpsys battery` (temperature is in tenths of a degree).
 
+## Lip-sync
+
+A clip that flashes white for 100 ms every second, served with the test server's `beep` mode (a tone at
+the same moments), shows how far sound and picture drift apart in a recording:
+
+```bash
+ffmpeg -f lavfi -i "color=c=0x202020:s=1280x720:r=30,drawbox=x=0:y=0:w=iw:h=ih:color=white:t=fill:enable='lt(mod(t\,1)\,0.1)'" \
+       -t 20 -c:v libx264 -profile:v baseline -g 30 -bf 0 -pix_fmt yuv420p -bsf:v h264_metadata=aud=insert -f h264 sync.h264
+node tools/dev/rtsp-test-server.js sync.h264 8558 30 beep
+```
+
+Add `rtsp://<computer>:8558/live` as a camera, record 15 to 20 seconds, pull the file, then:
+
+```bash
+python tools/dev/lipsync.py Sync_<date>_<time>.mp4
+```
+
+It prints the offset of every beep from its flash (negative = sound early). Restart the app between
+runs, since each RTSP connection is lined up separately. Within about ±45 ms is fine. Media3 1.8.0 gives
+−16 to +19 ms here; 1.11.1 gave −105 to −41 ms, which is why Media3 is held at 1.8.0.
+
 ## 5. Real device
 
 Wake the screen before every tap sequence. If the phone answers `Sending oneway calls to frozen process`, the app is in the background without a foreground service; check `KeepAliveService`.

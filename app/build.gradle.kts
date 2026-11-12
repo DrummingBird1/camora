@@ -2,7 +2,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -14,7 +13,7 @@ val keystoreProps = rootProject.file("keystore.properties").takeIf { it.exists()
 
 android {
     namespace = "app.ipcamhub"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "app.ipcamhub"

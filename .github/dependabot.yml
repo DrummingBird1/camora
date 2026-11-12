@@ -9,6 +9,9 @@ updates:
       day: monday
     open-pull-requests-limit: 5
     labels: [dependencies]
+    ignore:
+      # Media3 1.11 shifts RTSP lip-sync by about 70 ms; update it by hand after re-measuring.
+      - dependency-name: "androidx.media3:*"
     groups:
       minor-and-patch:
         update-types: [minor, patch]

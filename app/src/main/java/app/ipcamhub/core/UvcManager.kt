@@ -83,7 +83,7 @@ object UvcManager {
             override fun onDeviceOpen(device: UsbDevice, isFirstOpen: Boolean) {
                 appContext?.let { releaseKernelVideoDriver(it, device) }
                 val sizes = h.supportedSizeList?.takeIf { it.isNotEmpty() } ?: knownSizes
-                Log.i(TAG, "capture card sizes at device open: ${sizes?.size}")
+                Log.i(TAG, "capture card sizes at device open: ${sizes.size}")
                 val best = pickPreferred(sizes) ?: pickBest(sizes)
                 if (best != null) h.openCamera(best) else h.openCamera()
             }
