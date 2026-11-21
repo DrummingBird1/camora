@@ -9,7 +9,7 @@ Plain Node scripts, no dependencies (Node 18+), and one Python script that needs
 | `dev/stream-viewer.js` | Pulls a live stream for N seconds, prints bytes per second and the first chunk timings, optionally saves the stream for ffprobe. |
 | `dev/lipsync.py` | Measures the sound/picture offset of a recording of the flash/beep test clip (Python, needs ffmpeg). See "Lip-sync" in `../docs/TESTING.md`. |
 | `i18n/build.js` | Writes `strings.xml` for all 8 languages from `i18n/catalog.js`, the single source of every user-visible string. |
-| `brand/build-site.js` | Builds the website in `site/` from `assets/brand/brand.json`, the screenshots and `docs/PRIVACY.md`. |
+| `brand/build-site.js` | Builds the website in `site/` from `assets/brand/brand.json`, the screenshots and `docs/PRIVACY.md` (English) and `docs/PRIVACY.he.md` (Hebrew). |
 | `brand/render.js` | Renders the logo, app icon, banner and store graphics in `assets/` from the SVG sources in `assets/brand/`. |
 
 Keep tools dependency-free and print a usage line when called without arguments.
