@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Builds the static website (landing page and privacy policy, English and Hebrew) into site/
-// from assets/brand/brand.json and docs/PRIVACY.md. Host the site/ folder anywhere static
+// from assets/brand/brand.json, docs/PRIVACY.md and docs/PRIVACY.he.md. Host the site/ folder anywhere static
 // (GitHub Pages, Cloudflare Pages, Netlify). No dependencies.
 //   node tools/brand/build-site.js
 'use strict';
@@ -64,10 +64,14 @@ function markdown(md) {
   return html.join('\n');
 }
 
-const policy = fill(fs.readFileSync(path.join(root, 'docs', 'PRIVACY.md'), 'utf8'))
-  // The draft note is for the maintainer, not for readers.
-  .split(/\r?\n/).filter((l) => !/^_(Draft|טיוטה)/.test(l.trim())).join('\n');
-const [policyEn, policyHe] = policy.split(/^---$/m);
+// English is the primary policy (docs/PRIVACY.md); the Hebrew translation is docs/PRIVACY.he.md.
+function loadPolicy(file) {
+  return fill(fs.readFileSync(path.join(root, 'docs', file), 'utf8'))
+    // The draft note is for the maintainer, not for readers.
+    .split(/\r?\n/).filter((l) => !/^_(Draft|טיוטה)/.test(l.trim())).join('\n');
+}
+const policyEn = loadPolicy('PRIVACY.md');
+const policyHe = loadPolicy('PRIVACY.he.md');
 
 const css = `
 :root{--bg:${brand.background};--accent:${brand.accent};--text:#ECEAF6;--muted:#B9B5CC;--card:#24242E}
